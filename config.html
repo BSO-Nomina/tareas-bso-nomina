@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Configurar Tareas</title>
+<script src="https://unpkg.com/@microsoft/teams-js@2.22.0/dist/MicrosoftTeams.min.js"></script>
+<style>
+  body{font-family:'Segoe UI',sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;background:#F3F2F1}
+  .box{background:#fff;border-radius:12px;padding:2rem;max-width:400px;width:90%;text-align:center;box-shadow:0 2px 12px rgba(0,0,0,.1)}
+  h2{color:#7C3AED;margin-bottom:.5rem;font-size:20px;font-family:'Segoe UI',sans-serif}
+  p{color:#605E5C;font-size:13px;line-height:1.6;margin-top:.5rem}
+  .logo{font-size:48px;margin-bottom:1rem}
+</style>
+</head>
+<body>
+<div class="box">
+  <div class="logo">✅</div>
+  <h2>Tareas — Paula &amp; Carolina</h2>
+  <p>Gestor de tareas compartidas con urgencia, fechas límite, categorías y respuestas.</p>
+  <p style="margin-top:1.2rem;font-size:12px;color:#A19F9D">Haz clic en <strong>Guardar</strong> para agregar la pestaña al canal.</p>
+</div>
+<script>
+  microsoftTeams.app.initialize().then(function() {
+    microsoftTeams.pages.config.registerOnSaveHandler(function(saveEvent) {
+      microsoftTeams.pages.config.setConfig({
+        suggestedDisplayName: 'Tareas',
+        entityId: 'tareas-paula-carolina',
+        contentUrl: 'DOMINIO_AQUI',
+        websiteUrl: 'DOMINIO_AQUI'
+      });
+      saveEvent.notifySuccess();
+    });
+    microsoftTeams.pages.config.setValidityState(true);
+  });
+</script>
+</body>
+</html>

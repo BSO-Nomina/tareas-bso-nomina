@@ -1,0 +1,1428 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tareas - BSO Nomina</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<style>
+:root{
+  --paula:#7C3AED;--paula-l:#EDE9FE;
+  --carolina:#0891B2;--carolina-l:#E0F2FE;
+  --julio:#B45309;--julio-l:#FEF3C7;
+  --barbara:#BE185D;--barbara-l:#FCE7F3;
+  --yessenia:#0F766E;--yessenia-l:#CCFBF1;
+  --donovan:#0369A1;--donovan-l:#E0F2FE;
+  --shirley:#7E22CE;--shirley-l:#F3E8FF;
+  --alta:#DC2626;--alta-bg:#FEF2F2;
+  --media:#D97706;--media-bg:#FFFBEB;
+  --baja:#16A34A;--baja-bg:#F0FDF4;
+  --bg:#FAFAF9;--surface:#fff;--border:#E7E5E4;
+  --text:#1C1917;--muted:#78716C;--subtle:#A8A29E;
+  --radius:12px;--shadow:0 1px 3px rgba(0,0,0,.08);
+  --font:'Trebuchet MS',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh}
+
+/* ── AVATARS ── */
+.av-Paula{background:var(--paula-l);color:var(--paula)}
+.av-Carolina{background:var(--carolina-l);color:var(--carolina)}
+.av-Julio{background:var(--julio-l);color:var(--julio)}
+.av-Barbara{background:var(--barbara-l);color:var(--barbara)}
+.av-Yessenia{background:var(--yessenia-l);color:var(--yessenia)}
+.av-Donovan{background:var(--donovan-l);color:var(--donovan)}
+.av-Shirley{background:var(--shirley-l);color:var(--shirley)}
+.av-Admin{background:#1E293B;color:#fff}
+
+/* ── LOGIN ── */
+.login-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:1rem;background:linear-gradient(135deg,#EDE9FE 0%,#E0F2FE 100%)}
+.login-box{background:var(--surface);border-radius:20px;border:1px solid var(--border);padding:2rem 1.75rem;width:100%;max-width:400px;box-shadow:0 8px 40px rgba(0,0,0,.1)}
+.login-logo{text-align:center;margin-bottom:1.5rem}
+.login-logo .brand{font-size:26px;font-weight:700;letter-spacing:-.5px}
+.login-logo .brand span{color:var(--paula)}
+.login-logo p{font-size:13px;color:var(--muted);margin-top:4px}
+.user-cards{display:flex;flex-direction:column;gap:8px;margin-bottom:1.25rem;max-height:340px;overflow-y:auto;padding-right:2px}
+.user-card{border:2px solid var(--border);border-radius:12px;padding:11px 14px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:10px;background:var(--bg)}
+.user-card:hover{border-color:var(--subtle)}
+.user-avatar{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;transition:all .2s}
+.user-info{flex:1}
+.user-name{font-size:13px;font-weight:600;color:var(--text)}
+.user-role{font-size:11px;color:var(--muted)}
+.check-icon{font-size:18px;opacity:0;transition:opacity .2s}
+.pass-section{margin-bottom:1.1rem}
+.pass-section label{display:block;font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px}
+.pass-input-wrap{position:relative}
+.pass-input-wrap input{width:100%;font-family:var(--font);font-size:14px;padding:9px 38px 9px 12px;border:1.5px solid var(--border);border-radius:10px;background:var(--bg);color:var(--text);outline:none;transition:border-color .15s}
+.pass-input-wrap input:focus{border-color:var(--paula)}
+.toggle-pass{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--subtle);font-size:17px;padding:2px}
+.login-btn{width:100%;padding:10px;border-radius:100px;border:none;font-family:var(--font);font-size:14px;font-weight:600;cursor:pointer;color:#fff;background:var(--paula);transition:opacity .15s}
+.login-btn:hover{opacity:.88}
+.login-btn:disabled{opacity:.4;cursor:not-allowed}
+.login-error{color:#DC2626;font-size:12px;text-align:center;margin-top:8px;min-height:16px}
+.admin-sep{height:1px;background:var(--border);margin:6px 0}
+.admin-card-login{border-style:dashed!important}
+
+/* ── APP ── */
+.app-screen{display:none}
+.top-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 1.25rem;display:flex;align-items:center;justify-content:space-between;height:56px;position:sticky;top:0;z-index:50;gap:8px;flex-wrap:wrap}
+.brand{font-size:18px;font-weight:700}.brand span{color:var(--paula)}
+.top-user{display:flex;align-items:center;gap:7px}
+.top-avatar{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700}
+.top-name{font-size:13px;font-weight:600}
+.top-right{display:flex;align-items:center;gap:6px}
+.top-btn{padding:5px 11px;border-radius:100px;border:1px solid var(--border);background:transparent;font-family:var(--font);font-size:12px;cursor:pointer;color:var(--muted);display:flex;align-items:center;gap:4px}
+.top-btn:hover{background:var(--bg);color:var(--text)}
+.sync-ind{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--subtle)}
+.sync-dot{width:7px;height:7px;border-radius:50%;background:#22C55E;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.notif-wrap{position:relative}
+.notif-btn{width:32px;height:32px;border-radius:9px;border:1px solid var(--border);background:var(--surface);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:17px}
+.notif-btn:hover{background:var(--bg)}
+.notif-badge{position:absolute;top:-4px;right:-4px;width:16px;height:16px;border-radius:50%;background:#DC2626;color:#fff;font-size:9px;font-weight:700;display:none;align-items:center;justify-content:center;border:2px solid var(--bg)}
+.notif-panel{position:absolute;top:40px;right:0;width:290px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:0 8px 30px rgba(0,0,0,.12);z-index:300;display:none;overflow:hidden}
+.notif-panel.open{display:block}
+.notif-header{padding:9px 13px;font-size:13px;font-weight:600;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.notif-list{max-height:250px;overflow-y:auto}
+.notif-item{padding:9px 13px;border-bottom:1px solid var(--border);font-size:12px;line-height:1.5;cursor:pointer}
+.notif-item:hover{background:var(--bg)}
+.notif-item.unread{border-left:3px solid var(--paula)}
+.ni-title{font-weight:500;color:var(--text);margin-bottom:2px}
+.ni-time{color:var(--subtle);font-size:10px}
+.notif-empty{padding:1.5rem;text-align:center;color:var(--subtle);font-size:13px}
+
+/* ── TABS ── */
+.main-tabs{display:flex;border-bottom:1px solid var(--border);padding:0 1.25rem;max-width:880px;margin:0 auto}
+.main-tab{padding:9px 15px;font-family:var(--font);font-size:13px;font-weight:500;color:var(--muted);cursor:pointer;border:none;background:transparent;border-bottom:2px solid transparent;transition:all .15s;margin-bottom:-1px}
+.main-tab:hover{color:var(--text)}
+.main-tab.active{color:var(--paula);border-bottom-color:var(--paula)}
+.tab-section{display:none;max-width:880px;margin:0 auto;padding:1rem 1.25rem 3rem}
+.tab-section.visible{display:block}
+
+/* ── STATS ── */
+.stats-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-bottom:1rem}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:.8rem 1rem;box-shadow:var(--shadow);cursor:pointer;transition:border-color .15s}
+.stat-card:hover{border-color:var(--subtle)}
+.stat-num{font-size:24px;font-weight:700;line-height:1;margin-bottom:2px}
+.stat-lbl{font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+
+/* ── TOOLBAR ── */
+.toolbar{display:flex;align-items:center;gap:6px;margin-bottom:.75rem;flex-wrap:wrap}
+.filter-chip{padding:5px 11px;border-radius:100px;border:1px solid var(--border);background:var(--surface);font-family:var(--font);font-size:12px;font-weight:500;cursor:pointer;color:var(--muted);transition:all .15s}
+.filter-chip:hover{border-color:#A8A29E;color:var(--text)}
+.filter-chip.active{background:var(--text);color:#fff;border-color:var(--text)}
+.spacer{flex:1}
+.new-btn{display:flex;align-items:center;gap:5px;padding:7px 14px;border-radius:100px;border:none;color:#fff;font-family:var(--font);font-size:13px;font-weight:600;cursor:pointer;transition:opacity .15s}
+.new-btn:hover{opacity:.88}
+
+/* ── CATEGORIES ── */
+.cat-row{display:flex;gap:5px;margin-bottom:.9rem;overflow-x:auto;padding-bottom:3px;scrollbar-width:none}
+.cat-row::-webkit-scrollbar{display:none}
+.cat-chip{padding:3px 11px;border-radius:100px;border:1.5px solid var(--border);font-size:12px;font-weight:500;cursor:pointer;white-space:nowrap;background:var(--surface);color:var(--muted);transition:all .15s;display:flex;align-items:center;gap:4px}
+.cat-chip.sel{color:#fff}
+.cat-dot{width:6px;height:6px;border-radius:50%;display:inline-block}
+.cat-manage-btn{padding:3px 10px;border-radius:100px;border:1px dashed var(--border);font-size:12px;cursor:pointer;background:transparent;color:var(--subtle);white-space:nowrap}
+.cat-manage-btn:hover{border-color:#A8A29E;color:var(--text)}
+
+/* ── TASKS ── */
+.tasks{display:flex;flex-direction:column;gap:7px}
+.task-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;transition:border-color .15s,box-shadow .15s}
+.task-card:hover{border-color:#C7C3BF;box-shadow:0 2px 6px rgba(0,0,0,.1)}
+.task-card.is-done{opacity:.5}
+.task-card.urg-alta{border-left:3px solid var(--alta)}
+.task-card.urg-media{border-left:3px solid var(--media)}
+.task-card.urg-baja{border-left:3px solid var(--baja)}
+.task-card.overdue-row{background:#FFFAFA;border-color:#FCA5A5}
+.task-row{display:flex;align-items:center;gap:9px;padding:10px 12px;cursor:pointer}
+.task-check{width:19px;height:19px;border-radius:50%;border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;transition:all .15s;font-size:10px;color:transparent}
+.task-check:hover{border-color:var(--baja)}
+.is-done .task-check{background:var(--baja);border-color:var(--baja);color:#fff}
+.task-content{flex:1;min-width:0}
+.task-title{font-size:13px;font-weight:600;margin-bottom:3px;color:var(--text)}
+.is-done .task-title{text-decoration:line-through;color:var(--subtle)}
+.task-tags{display:flex;align-items:center;gap:4px;flex-wrap:wrap}
+.tag{font-size:10px;font-weight:600;padding:2px 7px;border-radius:100px;white-space:nowrap}
+.tag-alta{background:var(--alta-bg);color:var(--alta)}
+.tag-media{background:var(--media-bg);color:var(--media)}
+.tag-baja{background:var(--baja-bg);color:var(--baja)}
+.tag-date{font-size:10px;display:flex;align-items:center;gap:2px;padding:2px 6px;border-radius:100px}
+.tag-date.overdue{background:var(--alta-bg);color:var(--alta)}
+.tag-date.today{background:var(--media-bg);color:var(--media)}
+.tag-date.upcoming{background:var(--baja-bg);color:var(--baja)}
+.cat-pill{font-size:10px;font-weight:600;padding:2px 7px;border-radius:100px;color:#fff}
+.task-right{display:flex;align-items:center;gap:2px;flex-shrink:0}
+.icon-btn{width:27px;height:27px;display:flex;align-items:center;justify-content:center;border-radius:7px;border:none;background:transparent;cursor:pointer;color:var(--subtle);font-size:14px;transition:all .15s}
+.icon-btn:hover{background:var(--bg);color:var(--text)}
+.reply-badge{display:flex;align-items:center;gap:2px;font-size:11px;color:var(--subtle);padding:2px 4px}
+.chevron-icon{font-size:13px;color:var(--subtle);transition:transform .2s}
+.is-open .chevron-icon{transform:rotate(180deg)}
+.task-body{border-top:1px solid var(--border);background:#FAFAF9;padding:12px 12px 12px 40px}
+.task-desc{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:10px}
+.replies{display:flex;flex-direction:column;gap:7px;margin-bottom:10px}
+.reply{display:flex;gap:7px;align-items:flex-start}
+.avatar{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;flex-shrink:0}
+.bubble{background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:6px 10px;flex:1}
+.bubble-who{font-size:11px;font-weight:600;margin-bottom:2px}
+.bubble-text{font-size:12px;color:var(--text);line-height:1.4}
+.bubble-time{font-size:10px;color:var(--subtle);margin-top:2px}
+.reply-input-row{display:flex;gap:7px;align-items:center}
+.reply-input-row input{flex:1;font-family:var(--font);font-size:13px;padding:6px 10px;border:1px solid var(--border);border-radius:100px;background:var(--surface);color:var(--text);outline:none}
+.reply-input-row input:focus{border-color:#A8A29E}
+.send-btn{padding:6px 13px;border-radius:100px;border:none;font-family:var(--font);font-size:12px;font-weight:600;cursor:pointer;color:#fff}
+.empty-state{text-align:center;padding:4rem 1rem;color:var(--subtle);font-size:14px}
+.empty-state i{font-size:34px;display:block;margin-bottom:8px;color:var(--border)}
+
+/* ── MODALS ── */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(28,25,23,.4);z-index:200;align-items:center;justify-content:center}
+.modal-overlay.open{display:flex}
+.modal{background:var(--surface);border-radius:16px;border:1px solid var(--border);width:420px;max-width:95vw;padding:1.3rem;box-shadow:0 20px 60px rgba(0,0,0,.18);max-height:90vh;overflow-y:auto}
+.modal-sm{width:360px}
+.modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem}
+.modal-header h3{font-size:17px;font-weight:700}
+.frow{margin-bottom:10px}
+.frow label{display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:.4px}
+.frow input,.frow textarea,.frow select{width:100%;font-family:var(--font);font-size:13px;padding:8px 10px;border:1px solid var(--border);border-radius:9px;background:var(--bg);color:var(--text);outline:none}
+.frow input:focus,.frow textarea:focus,.frow select:focus{border-color:#A8A29E}
+.frow textarea{resize:vertical;min-height:68px}
+.frow-row{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.modal-footer{display:flex;justify-content:flex-end;gap:7px;margin-top:1rem}
+.btn-cancel{padding:7px 16px;border-radius:100px;border:1px solid var(--border);background:transparent;font-family:var(--font);font-size:13px;cursor:pointer;color:var(--muted)}
+.btn-save{padding:7px 16px;border-radius:100px;border:none;font-family:var(--font);font-size:13px;font-weight:600;cursor:pointer;color:#fff}
+.assign-box{border:1px solid var(--border);border-radius:9px;padding:7px 9px;background:var(--bg);display:flex;flex-direction:column;gap:5px;max-height:150px;overflow-y:auto}
+.assign-opt{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--text);cursor:pointer;padding:2px 3px;border-radius:5px}
+.assign-opt:hover{background:var(--border)}
+.assign-opt input[type=checkbox]{width:13px;height:13px;cursor:pointer}
+.assign-all{border-top:1px solid var(--border);margin-top:2px;padding-top:5px;color:var(--muted);font-weight:600}
+.cat-list-item{display:flex;align-items:center;gap:7px;padding:7px 0;border-bottom:1px solid var(--border)}
+.cat-color-dot{width:11px;height:11px;border-radius:50%;flex-shrink:0}
+.cat-name-txt{flex:1;font-size:13px}
+.color-picker-row{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px}
+.color-swatch{width:19px;height:19px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:transform .15s}
+.color-swatch:hover{transform:scale(1.15)}
+.color-swatch.sel{border-color:var(--text)}
+.add-cat-btn{padding:6px 13px;border-radius:100px;border:none;font-family:var(--font);font-size:12px;font-weight:600;cursor:pointer;color:#fff}
+.pass-strength-bar{height:4px;border-radius:2px;margin-top:5px;background:var(--border);overflow:hidden}
+.pass-strength-fill{height:100%;width:0;border-radius:2px;transition:width .3s,background .3s}
+.pass-strength-lbl{font-size:10px;color:var(--subtle);margin-top:2px;min-height:13px}
+.info-box{background:var(--bg);border-radius:9px;padding:9px 11px;margin-bottom:12px;font-size:12px;color:var(--muted);display:flex;align-items:flex-start;gap:7px}
+.success-msg{color:#16A34A;font-size:12px;text-align:center;display:none;margin-top:4px}
+.error-msg{color:#DC2626;font-size:12px;text-align:center;min-height:16px;margin-top:4px}
+.confirm-box{background:#FEF2F2;border-radius:9px;padding:11px 13px;margin-bottom:12px;font-size:13px;color:#DC2626;display:flex;gap:7px;align-items:flex-start}
+
+/* ── CALENDAR ── */
+.cal-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.cal-top{display:flex;align-items:center;justify-content:space-between;padding:11px 15px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:7px}
+.cal-top h3{font-size:14px;font-weight:700;color:var(--text)}
+.cal-view-tabs{display:flex;background:var(--bg);border:1px solid var(--border);border-radius:100px;padding:2px;gap:2px}
+.cvtab{padding:3px 11px;border-radius:100px;border:none;font-family:var(--font);font-size:11px;font-weight:500;cursor:pointer;background:transparent;color:var(--muted)}
+.cvtab.active{background:var(--surface);color:var(--text);border:0.5px solid var(--border)}
+.cal-nav-btn{width:26px;height:26px;border:0.5px solid var(--border);border-radius:7px;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:13px}
+.cal-body{display:grid;grid-template-columns:200px 1fr}
+.cal-left{border-right:1px solid var(--border);padding:13px}
+.mini-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px}
+.mini-hdr span{font-size:12px;font-weight:600;color:var(--text)}
+.mini-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;text-align:center}
+.mini-dow{font-size:9px;color:var(--subtle);font-weight:600;padding:2px 0;text-transform:uppercase}
+.mini-day{font-size:10px;padding:3px 1px;border-radius:5px;cursor:pointer;color:var(--text);position:relative;line-height:1}
+.mini-day:hover{background:var(--bg)}
+.mini-day.cal-today{background:var(--paula);color:#fff;font-weight:700}
+.mini-day.has-tk::after{content:'';position:absolute;bottom:1px;left:50%;transform:translateX(-50%);width:3px;height:3px;border-radius:50%;background:var(--media)}
+.mini-day.cal-today.has-tk::after{background:rgba(255,255,255,.7)}
+.mini-day.sel-day{background:var(--paula-l);color:var(--paula);font-weight:700}
+.mini-day.sel-day.cal-today{background:var(--paula);color:#fff}
+.cal-divider{height:1px;background:var(--border);margin:10px 0}
+.cal-filter-lbl{font-size:10px;font-weight:600;color:var(--subtle);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.cal-filter-row{display:flex;flex-direction:column;gap:4px}
+.cal-filter-item{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);cursor:pointer}
+.cal-filter-item input{width:12px;height:12px;cursor:pointer}
+.fdot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.cal-right{padding:13px;overflow-y:auto;max-height:500px}
+.cal-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:12px}
+.cal-stat{background:var(--bg);border-radius:9px;padding:7px 9px;text-align:center}
+.cal-stat-n{font-size:20px;font-weight:700;line-height:1;margin-bottom:1px}
+.cal-stat-l{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;font-weight:600}
+.tg-label{font-size:10px;font-weight:600;color:var(--subtle);text-transform:uppercase;letter-spacing:.4px;margin:9px 0 5px;display:flex;align-items:center;gap:5px}
+.cal-task-item{display:flex;align-items:center;gap:7px;padding:7px 9px;border-radius:9px;border:1px solid var(--border);background:var(--surface);margin-bottom:4px;cursor:pointer;transition:border-color .15s}
+.cal-task-item:hover{border-color:#C7C3BF}
+.cal-task-item.ov{border-left:3px solid var(--alta);background:#FFFAFA}
+.urg-bar{width:3px;height:30px;border-radius:2px;flex-shrink:0}
+.cal-task-name{font-size:12px;font-weight:600;color:var(--text);margin-bottom:2px}
+.cal-task-meta{display:flex;align-items:center;gap:4px;flex-wrap:wrap}
+.cal-chip{font-size:10px;padding:1px 5px;border-radius:8px;font-weight:600}
+.cal-task-info{flex:1;min-width:0}
+.user-chips{display:flex;gap:2px;flex-wrap:wrap}
+.u-chip{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;flex-shrink:0}
+.chk-circ{width:17px;height:17px;border-radius:50%;border:1.5px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:9px;color:transparent}
+.chk-circ.done{background:var(--baja);border-color:var(--baja);color:#fff}
+
+/* ── ADMIN ── */
+.admin-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:1rem}
+.admin-hdr{padding:11px 15px;border-bottom:1px solid var(--border);font-size:13px;font-weight:700;color:var(--text);display:flex;align-items:center;justify-content:space-between;background:var(--bg)}
+.admin-user-row{display:flex;align-items:center;gap:9px;padding:9px 15px;border-bottom:0.5px solid var(--border)}
+.admin-user-row:last-child{border-bottom:none}
+.admin-user-info{flex:1}
+.admin-user-name{font-size:13px;font-weight:600;color:var(--text)}
+.admin-user-meta{font-size:11px;color:var(--muted)}
+.admin-btn{padding:4px 11px;border-radius:100px;border:1px solid var(--border);background:transparent;font-family:var(--font);font-size:11px;font-weight:500;cursor:pointer;color:var(--muted)}
+.admin-btn:hover{background:var(--bg);color:var(--text)}
+.admin-btn.danger{border-color:#FCA5A5;color:#DC2626}
+.admin-btn.danger:hover{background:#FEF2F2}
+.admin-btn.primary{border-color:#A78BFA;color:var(--paula)}
+.admin-btn.primary:hover{background:var(--paula-l)}
+.color-opt{width:22px;height:22px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:transform .15s;display:inline-block}
+.color-opt:hover{transform:scale(1.15)}
+.color-opt.sel{border-color:var(--text)}
+.color-grid{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}
+
+/* ── LOADING ── */
+.loading-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;gap:10px;color:var(--muted);font-size:13px}
+.spinner{width:30px;height:30px;border:3px solid var(--border);border-top-color:var(--paula);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── SETUP ── */
+.setup-screen{display:none;align-items:center;justify-content:center;min-height:100vh;padding:1rem;background:linear-gradient(135deg,#EDE9FE 0%,#E0F2FE 100%)}
+.setup-box{background:var(--surface);border-radius:20px;border:1px solid var(--border);padding:2rem;width:100%;max-width:500px;box-shadow:0 8px 40px rgba(0,0,0,.1)}
+.setup-box h2{font-size:17px;font-weight:700;margin-bottom:.4rem}
+.setup-box p{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:.9rem}
+.setup-step{background:var(--bg);border-radius:9px;padding:10px 13px;margin-bottom:8px;border:1px solid var(--border);font-size:13px;color:var(--text);display:flex;align-items:flex-start;gap:8px}
+.step-num{display:inline-flex;width:20px;height:20px;border-radius:50%;background:var(--paula);color:#fff;font-size:10px;font-weight:700;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.fb-link{color:var(--paula);text-decoration:none;font-weight:600}
+code{background:#F3F0FF;color:var(--paula);padding:1px 5px;border-radius:4px;font-size:11px;font-family:monospace}
+.setup-fields .frow input{font-family:monospace;font-size:12px}
+.setup-save-btn{width:100%;padding:10px;border-radius:100px;border:none;font-family:var(--font);font-size:13px;font-weight:600;cursor:pointer;color:#fff;background:var(--paula);margin-top:.9rem}
+.setup-save-btn:hover{opacity:.88}
+
+@media(max-width:600px){
+  .stats-bar{grid-template-columns:repeat(2,1fr)}
+  .task-body{padding-left:12px}
+  .frow-row{grid-template-columns:1fr}
+  .cal-body{grid-template-columns:1fr}
+  .cal-left{border-right:none;border-bottom:1px solid var(--border)}
+}
+</style>
+</head>
+<body>
+
+<!-- LOADING -->
+<div id="loadingScreen" class="loading-screen">
+  <div class="spinner"></div>
+  <span>Conectando...</span>
+</div>
+
+<!-- SETUP FIREBASE -->
+<div class="setup-screen" id="setupScreen">
+  <div class="setup-box">
+    <h2>⚙️ Configurar base de datos</h2>
+    <p>Conecta Firebase para que todos los usuarios vean las tareas en tiempo real desde cualquier dispositivo. Solo se hace una vez.</p>
+    <div class="setup-step"><span class="step-num">1</span><span>Ve a <a class="fb-link" href="https://console.firebase.google.com" target="_blank">console.firebase.google.com</a> e inicia sesión con Gmail.</span></div>
+    <div class="setup-step"><span class="step-num">2</span><span>Clic en <strong>"Agregar proyecto"</strong> → ponle un nombre → continuar.</span></div>
+    <div class="setup-step"><span class="step-num">3</span><span>Ve a <strong>Realtime Database → Crear base de datos → Modo de prueba → Habilitar</strong>.</span></div>
+    <div class="setup-step"><span class="step-num">4</span><span>Ve a <strong>Configuración ⚙️ → Tus apps → Web</strong>. Registra la app y copia los datos de configuración.</span></div>
+    <div class="setup-step"><span class="step-num">5</span><span>Pega los valores aquí abajo y haz clic en <strong>Guardar y conectar</strong>.</span></div>
+    <div class="setup-fields">
+      <div class="frow"><label>API Key</label><input id="cfg-apiKey" placeholder="AIzaSy..."></div>
+      <div class="frow"><label>Auth Domain</label><input id="cfg-authDomain" placeholder="tu-proyecto.firebaseapp.com"></div>
+      <div class="frow"><label>Database URL</label><input id="cfg-databaseURL" placeholder="https://tu-proyecto-default-rtdb.firebaseio.com"></div>
+      <div class="frow"><label>Project ID</label><input id="cfg-projectId" placeholder="tu-proyecto"></div>
+      <div class="frow"><label>App ID</label><input id="cfg-appId" placeholder="1:123456789:web:abc..."></div>
+    </div>
+    <button class="setup-save-btn" onclick="saveFirebaseConfig()">Guardar y conectar</button>
+    <div class="error-msg" id="setupError"></div>
+  </div>
+</div>
+
+<!-- LOGIN -->
+<div class="login-screen" id="loginScreen" style="display:none">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="brand">tareas<span>.</span></div>
+      <p>BSO Nomina — Selecciona tu usuario</p>
+    </div>
+    <div class="user-cards" id="loginCards"><!-- populated dynamically --></div>
+    <div class="pass-section">
+      <label>Contraseña</label>
+      <div class="pass-input-wrap">
+        <input type="password" id="passInput" placeholder="Ingresa tu contraseña" onkeydown="if(event.key==='Enter')doLogin()">
+        <button class="toggle-pass" onclick="togglePass('passInput','eyeLogin')" tabindex="-1"><i class="ti ti-eye" id="eyeLogin"></i></button>
+      </div>
+    </div>
+    <button class="login-btn" id="loginBtn" onclick="doLogin()" disabled>Ingresar</button>
+    <div class="error-msg" id="loginError"></div>
+    <div style="text-align:center;margin-top:10px">
+      <button onclick="resetConfig()" style="background:none;border:none;font-size:11px;color:var(--subtle);cursor:pointer;font-family:var(--font)">Reconfigurar Firebase</button>
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div class="app-screen" id="appScreen">
+  <div class="top-bar">
+    <div class="brand">tareas<span>.</span></div>
+    <div class="top-user">
+      <div class="top-avatar" id="topAvatar"></div>
+      <span class="top-name" id="topName"></span>
+    </div>
+    <div class="top-right">
+      <div class="notif-wrap" id="notifWrap" style="display:none">
+        <button class="notif-btn" id="notifBtn" onclick="toggleNotif()"><i class="ti ti-bell"></i></button>
+        <div class="notif-badge" id="notifBadge">0</div>
+        <div class="notif-panel" id="notifPanel">
+          <div class="notif-header"><span>Notificaciones</span><button style="background:none;border:none;font-size:11px;color:var(--muted);cursor:pointer;font-family:var(--font)" onclick="clearNotifs()">Limpiar</button></div>
+          <div class="notif-list" id="notifList"></div>
+        </div>
+      </div>
+      <div class="sync-ind"><div class="sync-dot"></div><span id="syncTxt">en vivo</span></div>
+      <button class="top-btn" id="chpassBtn" onclick="openChPass()" style="display:none"><i class="ti ti-lock" style="font-size:12px"></i> Clave</button>
+      <button class="top-btn" onclick="doLogout()"><i class="ti ti-logout" style="font-size:12px"></i> Salir</button>
+    </div>
+  </div>
+
+  <div class="main-tabs">
+    <button class="main-tab active" id="tab-tareas" onclick="switchTab('tareas')"><i class="ti ti-checklist" style="font-size:13px;vertical-align:-2px;margin-right:4px"></i>Tareas</button>
+    <button class="main-tab" id="tab-calendario" onclick="switchTab('calendario')" style="display:none"><i class="ti ti-calendar" style="font-size:13px;vertical-align:-2px;margin-right:4px"></i>Calendario</button>
+    <button class="main-tab" id="tab-admin" onclick="switchTab('admin')" style="display:none"><i class="ti ti-shield-check" style="font-size:13px;vertical-align:-2px;margin-right:4px"></i>Admin</button>
+  </div>
+
+  <!-- TAREAS TAB -->
+  <div id="section-tareas" class="tab-section visible">
+    <div class="stats-bar" id="statsBar"></div>
+    <div class="toolbar">
+      <button class="filter-chip active" id="fc-todas" onclick="setFilter('todas',this)">Todas</button>
+      <button class="filter-chip" id="fc-pendiente" onclick="setFilter('pendiente',this)">Pendientes</button>
+      <button class="filter-chip" id="fc-listo" onclick="setFilter('listo',this)">Completadas</button>
+      <button class="filter-chip" id="fc-alta" onclick="setFilter('alta',this)">🔴 Alta</button>
+      <button class="filter-chip" id="fc-media" onclick="setFilter('media',this)">🟡 Media</button>
+      <button class="filter-chip" id="fc-baja" onclick="setFilter('baja',this)">🟢 Baja</button>
+      <button class="filter-chip" id="fc-vencidas" onclick="setFilter('vencidas',this)">⚠️ Vencidas</button>
+      <button class="filter-chip" id="fc-hoy" onclick="setFilter('hoy',this)">📅 Hoy</button>
+      <div class="spacer"></div>
+      <button class="new-btn" id="newBtn" onclick="openModal()"><i class="ti ti-plus"></i> Nueva</button>
+    </div>
+    <div class="cat-row" id="catRow"></div>
+    <div class="tasks" id="taskList"></div>
+  </div>
+
+  <!-- CALENDARIO TAB -->
+  <div id="section-calendario" class="tab-section">
+    <div class="cal-panel">
+      <div class="cal-top">
+        <h3 id="calMonthLbl">Mayo 2026</h3>
+        <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap">
+          <div class="cal-view-tabs">
+            <button class="cvtab active" onclick="setCalView('mensual',this)">Mensual</button>
+            <button class="cvtab" onclick="setCalView('lista',this)">Lista</button>
+          </div>
+          <button class="cal-nav-btn" onclick="calNav(-1)"><i class="ti ti-chevron-left"></i></button>
+          <button class="cal-nav-btn" onclick="calNav(1)"><i class="ti ti-chevron-right"></i></button>
+        </div>
+      </div>
+      <div class="cal-body">
+        <div class="cal-left">
+          <div class="mini-hdr"><span id="miniCalLbl"></span></div>
+          <div class="mini-grid" id="miniGrid"></div>
+          <div class="cal-divider"></div>
+          <div class="cal-filter-lbl">Estado</div>
+          <div class="cal-filter-row">
+            <label class="cal-filter-item"><input type="checkbox" id="cf-pend" checked onchange="window.calFilterChange()"><div class="fdot" style="background:var(--media)"></div>Pendientes</label>
+            <label class="cal-filter-item"><input type="checkbox" id="cf-done" checked onchange="window.calFilterChange()"><div class="fdot" style="background:var(--baja)"></div>Completadas</label>
+          </div>
+          <div class="cal-divider"></div>
+          <div class="cal-filter-lbl">Urgencia</div>
+          <div class="cal-filter-row">
+            <label class="cal-filter-item"><input type="checkbox" id="cf-alta" checked onchange="window.calFilterChange()"><div class="fdot" style="background:var(--alta)"></div>Alta</label>
+            <label class="cal-filter-item"><input type="checkbox" id="cf-media" checked onchange="window.calFilterChange()"><div class="fdot" style="background:var(--media)"></div>Media</label>
+            <label class="cal-filter-item"><input type="checkbox" id="cf-baja" checked onchange="window.calFilterChange()"><div class="fdot" style="background:var(--baja)"></div>Baja</label>
+          </div>
+        </div>
+        <div class="cal-right" id="calRight"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADMIN TAB -->
+  <div id="section-admin" class="tab-section">
+    <div class="admin-card">
+      <div class="admin-hdr"><span><i class="ti ti-users" style="margin-right:6px"></i>Usuarios del sistema</span><button class="admin-btn primary" onclick="openAddUser()"><i class="ti ti-user-plus" style="font-size:11px"></i> Agregar</button></div>
+      <div id="adminUserList"></div>
+    </div>
+  </div>
+</div>
+
+<!-- TASK MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-header"><h3 id="modalTitle">Nueva tarea</h3><button class="icon-btn" onclick="closeModal()"><i class="ti ti-x"></i></button></div>
+    <div class="frow"><label>Título</label><input id="fTitle" placeholder="¿Qué hay que hacer?"></div>
+    <div class="frow"><label>Descripción</label><textarea id="fDesc" placeholder="Detalles opcionales..."></textarea></div>
+    <div class="frow-row">
+      <div class="frow"><label>Urgencia</label><select id="fUrg"><option value="alta">🔴 Alta</option><option value="media" selected>🟡 Media</option><option value="baja">🟢 Baja</option></select></div>
+      <div class="frow"><label>Fecha límite</label><input type="date" id="fDue"></div>
+    </div>
+    <div class="frow-row">
+      <div class="frow"><label>Asignada a</label><div class="assign-box"><div id="assignChks"></div><label class="assign-opt assign-all"><input type="checkbox" id="chkTodos" onchange="toggleTodos(this)"> Todos</label></div></div>
+      <div class="frow"><label>Categoría</label><select id="fCat"><option value="">Sin categoría</option></select></div>
+    </div>
+    <div class="modal-footer"><button class="btn-cancel" onclick="closeModal()">Cancelar</button><button class="btn-save" id="btnSave" onclick="saveTask()">Guardar</button></div>
+  </div>
+</div>
+
+<!-- CAT MODAL -->
+<div class="modal-overlay" id="catModalOverlay" onclick="if(event.target===this)closeCatModal()">
+  <div class="modal modal-sm">
+    <div class="modal-header"><h3>Categorías</h3><button class="icon-btn" onclick="closeCatModal()"><i class="ti ti-x"></i></button></div>
+    <div id="catListEl"></div>
+    <div style="margin-top:10px">
+      <div class="frow"><label>Nueva categoría</label><input id="newCatName" placeholder="Ej: Marketing, Legal..."></div>
+      <div class="color-picker-row" id="catColorPicker"></div>
+      <div style="margin-top:9px;display:flex;justify-content:flex-end"><button class="add-cat-btn" id="addCatBtn" onclick="addCategory()">+ Agregar</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- CHANGE PASSWORD MODAL -->
+<div class="modal-overlay" id="chpassOverlay" onclick="if(event.target===this)closeChPass()">
+  <div class="modal modal-sm">
+    <div class="modal-header"><h3>Cambiar contraseña</h3><button class="icon-btn" onclick="closeChPass()"><i class="ti ti-x"></i></button></div>
+    <div class="info-box"><i class="ti ti-shield-lock" style="font-size:17px;flex-shrink:0"></i>Ingresa tu contraseña actual y luego la nueva.</div>
+    <div class="frow"><label>Contraseña actual</label><div class="pass-input-wrap"><input type="password" id="cp-cur" placeholder="Tu contraseña actual"><button class="toggle-pass" onclick="togglePass('cp-cur','cp-eye1')" tabindex="-1"><i class="ti ti-eye" id="cp-eye1"></i></button></div></div>
+    <div class="frow"><label>Nueva contraseña</label><div class="pass-input-wrap"><input type="password" id="cp-new" placeholder="Mínimo 4 caracteres" oninput="strengthCheck()"><button class="toggle-pass" onclick="togglePass('cp-new','cp-eye2')" tabindex="-1"><i class="ti ti-eye" id="cp-eye2"></i></button></div><div class="pass-strength-bar"><div id="strengthFill" class="pass-strength-fill"></div></div><div id="strengthLbl" class="pass-strength-lbl"></div></div>
+    <div class="frow"><label>Confirmar nueva</label><div class="pass-input-wrap"><input type="password" id="cp-con" placeholder="Repite la nueva contraseña"><button class="toggle-pass" onclick="togglePass('cp-con','cp-eye3')" tabindex="-1"><i class="ti ti-eye" id="cp-eye3"></i></button></div></div>
+    <div class="error-msg" id="cpError"></div>
+    <div class="success-msg" id="cpSuccess"><i class="ti ti-circle-check"></i> Contraseña actualizada</div>
+    <div class="modal-footer"><button class="btn-cancel" onclick="closeChPass()">Cancelar</button><button class="btn-save" id="cpSaveBtn" onclick="doChangePass()">Actualizar</button></div>
+  </div>
+</div>
+
+<!-- RESET PASSWORD MODAL (Admin) -->
+<div class="modal-overlay" id="resetPassOverlay" onclick="if(event.target===this)closeResetPass()">
+  <div class="modal modal-sm">
+    <div class="modal-header"><h3>Restablecer contraseña</h3><button class="icon-btn" onclick="closeResetPass()"><i class="ti ti-x"></i></button></div>
+    <div class="info-box"><i class="ti ti-shield-lock" style="font-size:17px;flex-shrink:0"></i>Restableciendo clave de: <strong id="resetUserName"></strong></div>
+    <div class="frow"><label>Nueva contraseña</label><div class="pass-input-wrap"><input type="password" id="rp-new" placeholder="Nueva contraseña"><button class="toggle-pass" onclick="togglePass('rp-new','rp-eye')" tabindex="-1"><i class="ti ti-eye" id="rp-eye"></i></button></div></div>
+    <div class="frow"><label>Confirmar</label><input type="password" id="rp-con" placeholder="Repetir contraseña"></div>
+    <div class="error-msg" id="rpError"></div>
+    <div class="success-msg" id="rpSuccess"><i class="ti ti-circle-check"></i> Contraseña restablecida</div>
+    <div class="modal-footer"><button class="btn-cancel" onclick="closeResetPass()">Cancelar</button><button class="btn-save" style="background:#1E293B" onclick="doResetPass()">Restablecer</button></div>
+  </div>
+</div>
+
+<!-- ADD USER MODAL -->
+<div class="modal-overlay" id="addUserOverlay" onclick="if(event.target===this)closeAddUser()">
+  <div class="modal modal-sm">
+    <div class="modal-header"><h3>Agregar usuario</h3><button class="icon-btn" onclick="closeAddUser()"><i class="ti ti-x"></i></button></div>
+    <div class="frow"><label>Nombre completo</label><input id="au-name" placeholder="Ej: Juan Pérez"></div>
+    <div class="frow"><label>Clave inicial</label><div class="pass-input-wrap"><input type="password" id="au-pass" placeholder="Mínimo 4 caracteres"><button class="toggle-pass" onclick="togglePass('au-pass','au-eye')" tabindex="-1"><i class="ti ti-eye" id="au-eye"></i></button></div></div>
+    <div class="frow"><label>Color de perfil</label><div class="color-grid" id="auColorGrid"></div></div>
+    <div class="error-msg" id="auError"></div>
+    <div class="success-msg" id="auSuccess"><i class="ti ti-circle-check"></i> Usuario creado correctamente</div>
+    <div class="modal-footer"><button class="btn-cancel" onclick="closeAddUser()">Cancelar</button><button class="btn-save" style="background:#1E293B" onclick="doAddUser()">Crear usuario</button></div>
+  </div>
+</div>
+
+<!-- DELETE USER MODAL -->
+<div class="modal-overlay" id="deleteUserOverlay" onclick="if(event.target===this)closeDeleteUser()">
+  <div class="modal modal-sm">
+    <div class="modal-header"><h3>Eliminar usuario</h3><button class="icon-btn" onclick="closeDeleteUser()"><i class="ti ti-x"></i></button></div>
+    <div class="confirm-box"><i class="ti ti-alert-triangle" style="font-size:17px;flex-shrink:0;margin-top:1px"></i><span>¿Confirmas eliminar a <strong id="deleteUserName"></strong>? Esta acción no se puede deshacer.</span></div>
+    <div class="modal-footer"><button class="btn-cancel" onclick="closeDeleteUser()">Cancelar</button><button class="btn-save" style="background:#DC2626" onclick="doDeleteUser()">Sí, eliminar</button></div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getDatabase, ref, onValue, set, push, remove, update } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
+
+// ═══════════════════════════════════════════════════
+// CONSTANTS
+// ═══════════════════════════════════════════════════
+const CFG_KEY = 'bso_firebase_cfg';
+const MONTHS = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+const DAYS = ['L','M','M','J','V','S','D'];
+const CAT_COLORS = ['#7C3AED','#0891B2','#DC2626','#D97706','#16A34A','#DB2777','#EA580C','#0284C7','#0F766E','#9333EA','#B45309','#7E22CE'];
+const USER_COLORS = ['#7C3AED','#0891B2','#B45309','#BE185D','#0F766E','#0369A1','#7E22CE','#DC2626','#D97706','#16A34A','#DB2777','#EA580C'];
+
+// Static base users (cannot be deleted)
+const BASE_USERS = {
+  Paula:    { full:'Paula Gallardo',    initials:'PG', color:'#7C3AED', defaultPass:'PG123' },
+  Carolina: { full:'Carolina Casanova', initials:'CC', color:'#0891B2', defaultPass:'CC123' },
+  Julio:    { full:'Julio Martinez',    initials:'JM', color:'#B45309', defaultPass:'JM123' },
+  Barbara:  { full:'Barbara Almarza',   initials:'BA', color:'#BE185D', defaultPass:'BA123' },
+  Yessenia: { full:'Yessenia Baeza',    initials:'YB', color:'#0F766E', defaultPass:'YB123' },
+  Donovan:  { full:'Donovan Riveros',   initials:'DR', color:'#0369A1', defaultPass:'DR123' },
+  Shirley:  { full:'Shirley Reyes',     initials:'SR', color:'#7E22CE', defaultPass:'SR123' },
+};
+
+// Admin is separate — no task access
+const ADMIN = { full:'Administrador', initials:'AD', color:'#1E293B', defaultPass:'DD2502', isAdmin:true };
+
+// ═══════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════
+let db = null;
+let currentUser = null;
+let selectedLoginUser = null;
+let filterSel = 'todas';
+let catFilter = 'todas';
+let expanded = {};
+let editId = null;
+let catSelectedColor = CAT_COLORS[0];
+let auSelectedColor = USER_COLORS[0];
+let resetTargetUser = null;
+let deleteTargetKey = null;
+let calYear = new Date().getFullYear();
+let calMonth = new Date().getMonth();
+let calView = 'mensual';
+let calSelDay = null;
+
+let tasks = {};
+let categories = {};
+let notifications = {};
+let dynUsers = {}; // users added by admin
+
+// ═══════════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════════
+const todayStr = () => new Date().toISOString().split('T')[0];
+const nowStr = () => new Date().toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit'});
+const $ = id => document.getElementById(id);
+
+function getPass(key) {
+  return localStorage.getItem('bso_pass_'+key) || (BASE_USERS[key]?.defaultPass) || (dynUsers[key]?.defaultPass) || (key==='Admin'?ADMIN.defaultPass:'');
+}
+function setPass(key, p) { localStorage.setItem('bso_pass_'+key, p); }
+
+function getAllRegularUsers() {
+  const all = {};
+  Object.entries(BASE_USERS).forEach(([k,u]) => { all[k] = {...u, isBase:true}; });
+  Object.entries(dynUsers).forEach(([k,u]) => { all[k] = {...u, isBase:false}; });
+  return all;
+}
+
+function userColor(key) {
+  if (!key) return '#A8A29E';
+  if (key === 'Admin') return ADMIN.color;
+  const u = BASE_USERS[key] || dynUsers[key];
+  return u?.color || '#A8A29E';
+}
+function userInitials(key) {
+  if (key === 'Admin') return 'AD';
+  const u = BASE_USERS[key] || dynUsers[key];
+  return u?.initials || key.substring(0,2).toUpperCase();
+}
+function userFull(key) {
+  if (key === 'Admin') return 'Administrador';
+  const u = BASE_USERS[key] || dynUsers[key];
+  return u?.full || key;
+}
+
+function dueDateInfo(due) {
+  if (!due) return {label:'',cls:'',icon:''};
+  const t = todayStr();
+  const diff = Math.ceil((new Date(due+'T12:00:00') - new Date()) / 86400000);
+  if (due < t) return {label:'Venció '+formatDate(due), cls:'overdue', icon:'ti-alert-triangle'};
+  if (due === t) return {label:'Vence hoy', cls:'today', icon:'ti-calendar-event'};
+  if (diff <= 3) return {label:diff+'d restantes', cls:'today', icon:'ti-calendar'};
+  return {label:formatDate(due), cls:'upcoming', icon:'ti-calendar'};
+}
+function formatDate(d) {
+  if (!d) return '';
+  const [,m,day] = d.split('-');
+  return parseInt(day)+' '+['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'][parseInt(m)-1];
+}
+
+function injectUserCSS(key, color) {
+  if (document.getElementById('ucss-'+key)) return;
+  const s = document.createElement('style');
+  s.id = 'ucss-'+key;
+  s.textContent = `.av-${key}{background:${color}22;color:${color}}.user-card.sel-${key}{border-color:${color};background:${color}11}.user-card.sel-${key} .user-avatar{background:${color};color:#fff}.user-card.sel-${key} .check-icon{color:${color};opacity:1}`;
+  document.head.appendChild(s);
+}
+
+function show(id) {
+  const el = $(id);
+  const flex = ['login-screen','setup-screen','loading-screen'];
+  el.style.display = flex.some(c => el.classList.contains(c)) ? 'flex' : 'block';
+}
+function hide(id) { $(id).style.display = 'none'; }
+
+// ═══════════════════════════════════════════════════
+// FIREBASE SETUP
+// ═══════════════════════════════════════════════════
+function loadConfig() { try { return JSON.parse(localStorage.getItem(CFG_KEY)); } catch(e) { return null; } }
+
+window.saveFirebaseConfig = async function() {
+  const cfg = {
+    apiKey: $('cfg-apiKey').value.trim(),
+    authDomain: $('cfg-authDomain').value.trim(),
+    databaseURL: $('cfg-databaseURL').value.trim(),
+    projectId: $('cfg-projectId').value.trim(),
+    appId: $('cfg-appId').value.trim(),
+  };
+  if (!cfg.apiKey || !cfg.databaseURL) { $('setupError').textContent = 'API Key y Database URL son obligatorios.'; return; }
+  $('setupError').textContent = '';
+  localStorage.setItem(CFG_KEY, JSON.stringify(cfg));
+  await initFirebase(cfg);
+};
+
+window.resetConfig = function() { localStorage.removeItem(CFG_KEY); location.reload(); };
+
+async function initFirebase(cfg) {
+  try {
+    const app = initializeApp(cfg);
+    db = getDatabase(app);
+    setupListeners();
+    hide('loadingScreen'); hide('setupScreen');
+    show('loginScreen');
+  } catch(e) { $('setupError').textContent = 'Error al conectar: '+e.message; }
+}
+
+function setupListeners() {
+  onValue(ref(db,'tasks'), snap => {
+    tasks = snap.val() || {};
+    if (currentUser && !ADMIN.isAdmin) {
+      render();
+      if ($('section-calendario')?.classList.contains('visible')) renderCal();
+    }
+  });
+  onValue(ref(db,'categories'), snap => {
+    categories = snap.val() || {};
+    if (!Object.keys(categories).length) seedCategories();
+    if (currentUser && !ADMIN.isAdmin) render();
+  });
+  onValue(ref(db,'notifications'), snap => {
+    notifications = snap.val() || {};
+    if (currentUser && !ADMIN.isAdmin) renderNotifs();
+  });
+  onValue(ref(db,'dynUsers'), snap => {
+    dynUsers = snap.val() || {};
+    Object.entries(dynUsers).forEach(([k,u]) => injectUserCSS(k, u.color));
+    renderLoginCards();
+    if (currentUser === 'Admin') renderAdmin();
+  });
+}
+
+async function seedCategories() {
+  const defaults = [{name:'Clientes',color:'#0891B2'},{name:'Interno',color:'#7C3AED'},{name:'Seguimiento',color:'#D97706'},{name:'Admin',color:'#16A34A'}];
+  for (const c of defaults) await push(ref(db,'categories'), c);
+}
+
+// ═══════════════════════════════════════════════════
+// LOGIN
+// ═══════════════════════════════════════════════════
+function renderLoginCards() {
+  const container = $('loginCards');
+  const allU = getAllRegularUsers();
+  let html = Object.entries(allU).map(([k,u]) => {
+    injectUserCSS(k, u.color);
+    return `<div class="user-card" id="card-${k}" onclick="selectUser('${k}')">
+      <div class="user-avatar av-${k}">${u.initials}</div>
+      <div class="user-info"><div class="user-name">${u.full}</div><div class="user-role">Usuario</div></div>
+      <i class="ti ti-circle-check check-icon"></i>
+    </div>`;
+  }).join('');
+  html += `<div class="admin-sep"></div>
+    <div class="user-card admin-card-login" id="card-Admin" onclick="selectUser('Admin')">
+      <div class="user-avatar av-Admin">AD</div>
+      <div class="user-info"><div class="user-name">Administrador</div><div class="user-role" style="display:flex;align-items:center;gap:3px"><i class="ti ti-shield-check" style="font-size:10px"></i> Solo gestión de usuarios</div></div>
+      <i class="ti ti-circle-check check-icon"></i>
+    </div>`;
+  container.innerHTML = html;
+}
+
+window.selectUser = function(u) {
+  selectedLoginUser = u;
+  document.querySelectorAll('.user-card').forEach(c => {
+    c.className = c.className.replace(/\bsel-\S+/g,'').trim();
+  });
+  const card = $('card-'+u);
+  if (card) card.classList.add('sel-'+u.toLowerCase());
+  const btn = $('loginBtn');
+  btn.disabled = false;
+  btn.style.background = u === 'Admin' ? '#1E293B' : userColor(u);
+  $('passInput').focus();
+  $('loginError').textContent = '';
+};
+
+window.doLogin = function() {
+  if (!selectedLoginUser) return;
+  const pass = $('passInput').value;
+  const stored = getPass(selectedLoginUser);
+  if (pass === stored) {
+    currentUser = selectedLoginUser;
+    $('passInput').value = '';
+    $('loginError').textContent = '';
+
+    // Reset state for fresh session
+    expanded = {}; filterSel = 'todas'; catFilter = 'todas';
+    calSelDay = null; calYear = new Date().getFullYear(); calMonth = new Date().getMonth();
+    editId = null;
+
+    // Clear previous content
+    ['statsBar','taskList','catRow','calRight','miniGrid','notifList','adminUserList'].forEach(id => {
+      const el=$(id); if(el) el.innerHTML='';
+    });
+
+    // Reset filter chips
+    document.querySelectorAll('.filter-chip').forEach(b => b.classList.remove('active'));
+    const fc=$('fc-todas'); if(fc) fc.classList.add('active');
+
+    hide('loginScreen');
+    show('appScreen');
+    setupAppUI();
+    if (currentUser === 'Admin') {
+      switchTab('admin');
+    } else {
+      render();
+      renderNotifs();
+      if ('Notification' in window && Notification.permission === 'default') Notification.requestPermission();
+    }
+  } else {
+    $('loginError').textContent = 'Contraseña incorrecta. Intenta de nuevo.';
+    $('passInput').value = '';
+    $('passInput').focus();
+  }
+};
+
+window.doLogout = function() {
+  // Reset ALL state
+  currentUser = null; selectedLoginUser = null;
+  expanded = {}; filterSel = 'todas'; catFilter = 'todas';
+  calSelDay = null; calYear = new Date().getFullYear(); calMonth = new Date().getMonth();
+  editId = null;
+
+  // Clear rendered content so previous user's tasks don't show
+  const clearIds = ['statsBar','taskList','catRow','calRight','miniGrid','notifList','adminUserList'];
+  clearIds.forEach(id => { const el=$(id); if(el) el.innerHTML=''; });
+
+  // Reset filter chips
+  document.querySelectorAll('.filter-chip').forEach(b => b.classList.remove('active'));
+  const fc = $('fc-todas'); if(fc) fc.classList.add('active');
+
+  // Reset tab to tareas
+  ['tareas','calendario','admin'].forEach(t => {
+    $('section-'+t)?.classList.toggle('visible', t==='tareas');
+    $('tab-'+t)?.classList.toggle('active', t==='tareas');
+  });
+
+  hide('appScreen');
+  show('loginScreen');
+  document.querySelectorAll('.user-card').forEach(c => {
+    c.className = c.className.replace(/sel-\S+/g,'').trim();
+  });
+  $('loginBtn').disabled = true;
+  $('loginBtn').style.background = 'var(--paula)';
+  $('passInput').value = '';
+  $('loginError').textContent = '';
+};
+
+function setupAppUI() {
+  const isAdmin = currentUser === 'Admin';
+  const color = isAdmin ? '#1E293B' : userColor(currentUser);
+  const av = $('topAvatar');
+  av.textContent = userInitials(currentUser);
+  av.className = 'top-avatar av-'+currentUser;
+  $('topName').textContent = userFull(currentUser);
+  if (!isAdmin) {
+    $('newBtn').style.background = color;
+    $('btnSave').style.background = color;
+    $('cpSaveBtn').style.background = color;
+  }
+  $('tab-tareas').style.display = isAdmin ? 'none' : 'block';
+  $('tab-calendario').style.display = isAdmin ? 'none' : 'block';
+  $('tab-admin').style.display = isAdmin ? 'block' : 'none';
+  $('notifWrap').style.display = isAdmin ? 'none' : 'flex';
+  $('chpassBtn').style.display = isAdmin ? 'none' : 'flex';
+  $('newBtn').style.display = isAdmin ? 'none' : 'flex';
+}
+
+// ═══════════════════════════════════════════════════
+// TABS
+// ═══════════════════════════════════════════════════
+window.switchTab = function(tab) {
+  ['tareas','calendario','admin'].forEach(t => {
+    $('section-'+t)?.classList.toggle('visible', t===tab);
+    $('tab-'+t)?.classList.toggle('active', t===tab);
+  });
+  if (tab==='calendario') renderCal();
+  if (tab==='admin') renderAdmin();
+};
+
+// ═══════════════════════════════════════════════════
+// VISIBILITY LOGIC
+// ═══════════════════════════════════════════════════
+function isVisibleToMe(t) {
+  if (t.assignee === 'Todos') return true;
+  if (t.assignee === currentUser) return true;
+  if (Array.isArray(t.assignee) && t.assignee.includes(currentUser)) return true;
+  // Creator can see tasks they assigned to others (for follow-up)
+  if (t.createdBy === currentUser) return true;
+  return false;
+}
+
+// ═══════════════════════════════════════════════════
+// RENDER TASKS
+// ═══════════════════════════════════════════════════
+window.setFilter = function(f, el) {
+  filterSel = f;
+  document.querySelectorAll('.filter-chip').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  render();
+};
+window.setCatFilter = function(id) { catFilter = id; render(); };
+
+function render() {
+  if (!currentUser || currentUser==='Admin') return;
+  const tArr = Object.entries(tasks).map(([k,v]) => ({...v, key:k}));
+  const visible = tArr.filter(t => isVisibleToMe(t));
+  const pend = visible.filter(t=>!t.done).length;
+  const comp = visible.filter(t=>t.done).length;
+  const alta = visible.filter(t=>t.urgency==='alta'&&!t.done).length;
+  const venc = visible.filter(t=>!t.done&&t.due&&t.due<todayStr()).length;
+  const mine = visible.filter(t=>{
+    const arr = t.assignee==='Todos'?Object.keys(getAllRegularUsers()):Array.isArray(t.assignee)?t.assignee:[t.assignee];
+    return arr.includes(currentUser)&&!t.done;
+  }).length;
+  const col = userColor(currentUser);
+
+  $('statsBar').innerHTML = `
+    <div class="stat-card" onclick="setFilter('pendiente',$('fc-pendiente'))"><div class="stat-num">${pend}</div><div class="stat-lbl">Pendientes</div></div>
+    <div class="stat-card" onclick="setFilter('${venc?'vencidas':'alta'}',$(\'fc-${venc?'vencidas':'alta'}\'))"><div class="stat-num" style="color:var(--alta)">${venc||alta}</div><div class="stat-lbl">${venc?'Vencidas':'Alta urgencia'}</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:${col}">${mine}</div><div class="stat-lbl">Mis tareas</div></div>
+    <div class="stat-card" onclick="setFilter('listo',$('fc-listo'))"><div class="stat-num" style="color:var(--baja)">${comp}</div><div class="stat-lbl">Completadas</div></div>`;
+
+  const cats = Object.entries(categories).map(([k,v])=>({...v,key:k}));
+  $('catRow').innerHTML = `
+    <div class="cat-chip${catFilter==='todas'?' sel':''}" style="${catFilter==='todas'?'background:var(--text);border-color:var(--text);color:#fff':''}" onclick="setCatFilter('todas')">Todas</div>
+    ${cats.map(c=>`<div class="cat-chip${catFilter===c.key?' sel':''}" style="${catFilter===c.key?`background:${c.color};border-color:${c.color};color:#fff`:''}" onclick="setCatFilter('${c.key}')"><span class="cat-dot" style="background:${c.color}"></span>${c.name}</div>`).join('')}
+    <button class="cat-manage-btn" onclick="openCatModal()"><i class="ti ti-settings" style="font-size:11px"></i> Editar</button>`;
+
+  let list = [...visible].sort((a,b)=>{
+    if (a.done!==b.done) return a.done?1:-1;
+    const ao=a.due&&a.due<todayStr()&&!a.done, bo=b.due&&b.due<todayStr()&&!b.done;
+    if (ao!==bo) return ao?-1:1;
+    return {alta:0,media:1,baja:2}[a.urgency]-{alta:0,media:1,baja:2}[b.urgency];
+  });
+
+  if (filterSel==='pendiente') list=list.filter(t=>!t.done);
+  else if (filterSel==='listo') list=list.filter(t=>t.done);
+  else if (filterSel==='alta') list=list.filter(t=>t.urgency==='alta'&&!t.done);
+  else if (filterSel==='media') list=list.filter(t=>t.urgency==='media'&&!t.done);
+  else if (filterSel==='baja') list=list.filter(t=>t.urgency==='baja'&&!t.done);
+  else if (filterSel==='vencidas') list=list.filter(t=>!t.done&&t.due&&t.due<todayStr());
+  else if (filterSel==='hoy') list=list.filter(t=>t.due===todayStr()&&!t.done);
+  if (catFilter!=='todas') list=list.filter(t=>t.catId===catFilter);
+
+  if (!list.length) { $('taskList').innerHTML=`<div class="empty-state"><i class="ti ti-checklist"></i>No hay tareas en esta vista<br><small style="font-size:11px;margin-top:5px;display:block">Haz clic en "+ Nueva" para comenzar</small></div>`; return; }
+
+  const atag = a => {
+    if (a==='Todos') return `<span class="tag" style="background:#F5F5F4;color:var(--muted)">Todos</span>`;
+    const arr = Array.isArray(a)?a:[a];
+    return arr.map(u=>`<span class="tag" style="background:${userColor(u)}22;color:${userColor(u)}">${userFull(u).split(' ')[0]}</span>`).join('');
+  };
+
+  $('taskList').innerHTML = list.map(t => {
+    const open = expanded[t.key];
+    const replies = t.replies ? Object.values(t.replies) : [];
+    const rc = replies.length;
+    const di = dueDateInfo(t.due);
+    const cat = t.catId ? categories[t.catId] : null;
+    const isOv = !t.done&&t.due&&t.due<todayStr();
+    const urgC = {alta:'var(--alta)',media:'var(--media)',baja:'var(--baja)'}[t.urgency];
+    const canDelete = t.createdBy === currentUser;
+    return `<div class="task-card urg-${t.urgency}${t.done?' is-done':''}${open?' is-open':''}${isOv?' overdue-row':''}">
+      <div class="task-row" onclick="toggleExpand('${t.key}')">
+        <div class="task-check" onclick="toggleDone('${t.key}',event)">${t.done?'<i class="ti ti-check" style="font-size:10px"></i>':''}</div>
+        <div class="task-content">
+          <div class="task-title">${t.title}</div>
+          <div class="task-tags">
+            <span class="tag tag-${t.urgency}">${{alta:'Alta',media:'Media',baja:'Baja'}[t.urgency]}</span>
+            ${atag(t.assignee)}
+            ${cat?`<span class="cat-pill" style="background:${cat.color}">${cat.name}</span>`:''}
+            ${di.label?`<span class="tag tag-date ${di.cls}"><i class="ti ${di.icon}" style="font-size:9px"></i> ${di.label}</span>`:''}
+            ${rc>0?`<span class="reply-badge"><i class="ti ti-message-circle" style="font-size:12px"></i>${rc}</span>`:''}
+          </div>
+        </div>
+        <div class="task-right">
+          <button class="icon-btn" onclick="editTask('${t.key}',event)"><i class="ti ti-edit"></i></button>
+          ${canDelete?`<button class="icon-btn" onclick="deleteTask('${t.key}',event)"><i class="ti ti-trash"></i></button>`:''}
+          <i class="ti ti-chevron-down chevron-icon"></i>
+        </div>
+      </div>
+      ${open?`<div class="task-body">
+        ${t.desc?`<div class="task-desc">${t.desc}</div>`:''}
+        ${rc>0?`<div class="replies">${replies.map(r=>`<div class="reply"><div class="avatar av-${r.user}">${userInitials(r.user)}</div><div class="bubble"><div class="bubble-who" style="color:${userColor(r.user)}">${userFull(r.user)}</div><div class="bubble-text">${r.text}</div><div class="bubble-time">${r.time}</div></div></div>`).join('')}</div>`:''}
+        <div class="reply-input-row">
+          <div class="avatar av-${currentUser}">${userInitials(currentUser)}</div>
+          <input id="ri-${t.key}" placeholder="Responder como ${userFull(currentUser)}…" onkeydown="if(event.key==='Enter')sendReply('${t.key}')">
+          <button class="send-btn" style="background:${userColor(currentUser)}" onclick="sendReply('${t.key}')">Enviar</button>
+        </div>
+      </div>`:''}
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════
+// TASK ACTIONS
+// ═══════════════════════════════════════════════════
+window.toggleExpand = id => { expanded[id]=!expanded[id]; render(); };
+
+window.toggleDone = async function(id, e) {
+  e.stopPropagation();
+  const t = tasks[id];
+  const newDone = !t.done;
+  await update(ref(db,'tasks/'+id), {done:newDone});
+  if (newDone) {
+    const involved = getInvolved(t);
+    for (const u of involved) if (u!==currentUser) await pushNotif(u,`✅ "${t.title}" completada por ${userFull(currentUser)}`,id);
+  }
+};
+
+window.deleteTask = async function(id, e) {
+  e.stopPropagation();
+  if (tasks[id]?.createdBy !== currentUser) return;
+  await remove(ref(db,'tasks/'+id));
+};
+
+window.editTask = function(id, e) { e.stopPropagation(); openModal(id); };
+
+window.sendReply = async function(id) {
+  const inp = $('ri-'+id);
+  const txt = inp.value.trim();
+  if (!txt) return;
+  await push(ref(db,'tasks/'+id+'/replies'), {user:currentUser, text:txt, time:nowStr()});
+  inp.value = '';
+  const t = tasks[id];
+  const involved = getInvolved(t);
+  for (const u of involved) if (u!==currentUser) await pushNotif(u,`💬 ${userFull(currentUser)} respondió en "${t.title}"`,id);
+};
+
+function getInvolved(t) {
+  const allU = getAllRegularUsers();
+  const s = new Set();
+  if (t.createdBy) s.add(t.createdBy);
+  if (t.assignee==='Todos') Object.keys(allU).forEach(u=>s.add(u));
+  else if (Array.isArray(t.assignee)) t.assignee.forEach(u=>s.add(u));
+  else s.add(t.assignee);
+  return [...s];
+}
+
+// ═══════════════════════════════════════════════════
+// TASK MODAL
+// ═══════════════════════════════════════════════════
+window.openModal = function(id=null) {
+  editId = id;
+  const t = id ? tasks[id] : null;
+  $('modalTitle').textContent = id ? 'Editar tarea' : 'Nueva tarea';
+  $('fTitle').value = t?.title||'';
+  $('fDesc').value = t?.desc||'';
+  $('fUrg').value = t?.urgency||'media';
+  $('fDue').value = t?.due||'';
+  const allU = getAllRegularUsers();
+  $('assignChks').innerHTML = Object.entries(allU).map(([k,u])=>
+    `<label class="assign-opt"><input type="checkbox" value="${k}"> ${u.full}</label>`
+  ).join('');
+  $('chkTodos').checked = false;
+  setAssignees(t?.assignee || currentUser);
+  const cs = $('fCat');
+  cs.innerHTML = '<option value="">Sin categoría</option>'+Object.entries(categories).map(([k,v])=>`<option value="${k}">${v.name}</option>`).join('');
+  cs.value = t?.catId||'';
+  $('modalOverlay').classList.add('open');
+};
+
+window.closeModal = () => { $('modalOverlay').classList.remove('open'); editId=null; };
+
+function setAssignees(a) {
+  document.querySelectorAll('#assignChks input').forEach(c=>c.checked=false);
+  $('chkTodos').checked = false;
+  if (!a) { const el=document.querySelector(`#assignChks input[value="${currentUser}"]`); if(el) el.checked=true; return; }
+  if (a==='Todos') { document.querySelectorAll('#assignBox input').forEach(c=>c.checked=true); return; }
+  const arr = Array.isArray(a)?a:[a];
+  arr.forEach(u=>{ const el=document.querySelector(`#assignChks input[value="${u}"]`); if(el) el.checked=true; });
+}
+
+window.toggleTodos = function(chk) {
+  document.querySelectorAll('#assignBox input[type=checkbox]').forEach(c=>c.checked=chk.checked);
+};
+
+function getAssignees() {
+  const checked = [...document.querySelectorAll('#assignChks input:checked')].map(c=>c.value);
+  const allU = getAllRegularUsers();
+  if ($('chkTodos').checked || checked.length===Object.keys(allU).length) return 'Todos';
+  return checked.length===1 ? checked[0] : checked;
+}
+
+window.saveTask = async function() {
+  const title = $('fTitle').value.trim();
+  if (!title) return;
+  const assignee = getAssignees();
+  const data = {
+    title, desc:$('fDesc').value.trim(),
+    urgency:$('fUrg').value,
+    due:$('fDue').value,
+    assignee, catId:$('fCat').value||null,
+  };
+  if (editId) {
+    await update(ref(db,'tasks/'+editId), data);
+  } else {
+    data.done=false; data.createdBy=currentUser; data.createdAt=Date.now(); data.replies={};
+    const snap = await push(ref(db,'tasks'), data);
+    const allU = getAllRegularUsers();
+    const toNotif = assignee==='Todos'?Object.keys(allU):(Array.isArray(assignee)?assignee:[assignee]);
+    for (const u of toNotif) if (u!==currentUser) await pushNotif(u,`📋 Nueva tarea: "${title}"`,snap.key);
+  }
+  closeModal();
+};
+
+// ═══════════════════════════════════════════════════
+// CATEGORIES
+// ═══════════════════════════════════════════════════
+window.openCatModal = function() {
+  catSelectedColor = CAT_COLORS[0];
+  renderCatModal();
+  $('catModalOverlay').classList.add('open');
+};
+window.closeCatModal = () => $('catModalOverlay').classList.remove('open');
+window.selectCatColor = function(c) { catSelectedColor=c; renderCatPicker(); };
+
+function renderCatModal() {
+  $('catListEl').innerHTML = Object.entries(categories).map(([k,v])=>`
+    <div class="cat-list-item">
+      <div class="cat-color-dot" style="background:${v.color}"></div>
+      <div class="cat-name-txt">${v.name}</div>
+      <button class="icon-btn" onclick="deleteCat('${k}')"><i class="ti ti-trash"></i></button>
+    </div>`).join('');
+  $('addCatBtn').style.background = userColor(currentUser);
+  renderCatPicker();
+}
+function renderCatPicker() {
+  $('catColorPicker').innerHTML = CAT_COLORS.map(c=>`<div class="color-swatch${c===catSelectedColor?' sel':''}" style="background:${c}" onclick="selectCatColor('${c}')"></div>`).join('');
+}
+window.addCategory = async function() {
+  const name=$('newCatName').value.trim();
+  if(!name) return;
+  await push(ref(db,'categories'),{name,color:catSelectedColor});
+  $('newCatName').value='';
+};
+window.deleteCat = async function(key) {
+  await remove(ref(db,'categories/'+key));
+  const upd={};
+  Object.entries(tasks).forEach(([k,t])=>{ if(t.catId===key) upd['tasks/'+k+'/catId']=null; });
+  if(Object.keys(upd).length) await update(ref(db),upd);
+};
+
+// ═══════════════════════════════════════════════════
+// NOTIFICATIONS
+// ═══════════════════════════════════════════════════
+async function pushNotif(user, msg, taskId) {
+  await push(ref(db,'notifications/'+user),{msg,taskId:taskId||'',time:nowStr(),read:false,id:Date.now()});
+}
+
+window.toggleNotif = async function() {
+  const panel = $('notifPanel');
+  const opening = !panel.classList.contains('open');
+  panel.classList.toggle('open');
+  if (opening && currentUser && notifications[currentUser]) {
+    const upd={};
+    Object.entries(notifications[currentUser]).forEach(([k,n])=>{ if(!n.read) upd['notifications/'+currentUser+'/'+k+'/read']=true; });
+    if(Object.keys(upd).length) await update(ref(db),upd);
+  }
+};
+document.addEventListener('click', e => {
+  const p=$('notifPanel');
+  if(p&&!p.contains(e.target)&&!$('notifBtn').contains(e.target)) p.classList.remove('open');
+});
+
+function renderNotifs() {
+  const raw = notifications[currentUser]||{};
+  const notifs = Object.entries(raw).map(([k,v])=>({...v,key:k})).sort((a,b)=>b.id-a.id);
+  const unread = notifs.filter(n=>!n.read).length;
+  const badge = $('notifBadge');
+  badge.style.display = unread>0?'flex':'none';
+  badge.textContent = unread>9?'9+':unread;
+  const list = $('notifList');
+  if(!notifs.length){list.innerHTML='<div class="notif-empty"><i class="ti ti-bell-off" style="font-size:22px;display:block;margin-bottom:5px"></i>Sin notificaciones</div>';return;}
+  list.innerHTML = notifs.map(n=>`<div class="notif-item${n.read?'':' unread'}" onclick="goToTask('${n.key}','${n.taskId||''}')"><div class="ni-title">${n.msg}</div><div class="ni-time">${n.time}</div></div>`).join('');
+  // Desktop notification for new ones
+  notifs.filter(n=>!n.read).slice(0,1).forEach(n=>{
+    if('Notification'in window&&Notification.permission==='granted') {
+      new Notification('Tareas BSO Nomina',{body:n.msg,tag:n.key,renotify:true});
+    }
+  });
+}
+
+window.goToTask = async function(key, taskId) {
+  await update(ref(db,'notifications/'+currentUser+'/'+key),{read:true});
+  if(taskId){expanded[taskId]=true;render();$('notifPanel').classList.remove('open');}
+};
+
+window.clearNotifs = async function() { await set(ref(db,'notifications/'+currentUser),null); };
+
+// ═══════════════════════════════════════════════════
+// CHANGE PASSWORD
+// ═══════════════════════════════════════════════════
+window.openChPass = function() {
+  ['cp-cur','cp-new','cp-con'].forEach(id=>$(id).value='');
+  $('cpError').textContent='';$('cpSuccess').style.display='none';
+  $('strengthFill').style.width='0';$('strengthLbl').textContent='';
+  $('chpassOverlay').classList.add('open');
+};
+window.closeChPass = ()=>$('chpassOverlay').classList.remove('open');
+
+window.strengthCheck = function() {
+  const v=$('cp-new').value;
+  const fill=$('strengthFill'),lbl=$('strengthLbl');
+  if(!v){fill.style.width='0';lbl.textContent='';return;}
+  let s=0;
+  if(v.length>=4)s++;if(v.length>=8)s++;if(/[A-Z]/.test(v))s++;if(/[0-9]/.test(v))s++;if(/[^A-Za-z0-9]/.test(v))s++;
+  const lvls=[{w:'20%',bg:'#DC2626',l:'Muy débil'},{w:'40%',bg:'#D97706',l:'Débil'},{w:'60%',bg:'#EAB308',l:'Regular'},{w:'80%',bg:'#16A34A',l:'Fuerte'},{w:'100%',bg:'#0891B2',l:'Muy fuerte'}];
+  const lv=lvls[Math.min(s-1,4)];
+  fill.style.width=lv.w;fill.style.background=lv.bg;lbl.textContent=lv.l;lbl.style.color=lv.bg;
+};
+
+window.doChangePass = function() {
+  const cur=$('cp-cur').value,nw=$('cp-new').value,con=$('cp-con').value;
+  const err=$('cpError');err.textContent='';
+  if(cur!==getPass(currentUser)){err.textContent='La contraseña actual es incorrecta.';$('cp-cur').value='';return;}
+  if(nw.length<4){err.textContent='Mínimo 4 caracteres.';return;}
+  if(nw!==con){err.textContent='Las contraseñas nuevas no coinciden.';$('cp-con').value='';return;}
+  if(nw===cur){err.textContent='La nueva debe ser diferente a la actual.';return;}
+  setPass(currentUser,nw);
+  $('cpSuccess').style.display='block';
+  ['cp-cur','cp-new','cp-con'].forEach(id=>$(id).value='');
+  $('strengthFill').style.width='0';$('strengthLbl').textContent='';
+  setTimeout(()=>closeChPass(),1800);
+};
+
+window.togglePass = function(inputId,iconId) {
+  const inp=$(inputId),icon=$(iconId);
+  if(inp.type==='password'){inp.type='text';icon.className='ti ti-eye-off';}
+  else{inp.type='password';icon.className='ti ti-eye';}
+};
+
+// ═══════════════════════════════════════════════════
+// ADMIN PANEL
+// ═══════════════════════════════════════════════════
+function renderAdmin() {
+  if(currentUser!=='Admin') return;
+  const allU = getAllRegularUsers();
+  $('adminUserList').innerHTML = Object.entries(allU).map(([k,u])=>`
+    <div class="admin-user-row">
+      <div class="top-avatar av-${k}" style="width:34px;height:34px;font-size:10px;background:${u.color}22;color:${u.color}">${u.initials}</div>
+      <div class="admin-user-info">
+        <div class="admin-user-name">${u.full} ${!u.isBase?'<span style="font-size:10px;background:#E0F2FE;color:#0891B2;padding:1px 5px;border-radius:8px;font-weight:600">Nuevo</span>':''}</div>
+        <div class="admin-user-meta">${u.isBase?'Usuario base':'Usuario agregado por admin'}</div>
+      </div>
+      <div style="display:flex;gap:5px;flex-wrap:wrap">
+        <button class="admin-btn" onclick="openResetPass('${k}')"><i class="ti ti-key" style="font-size:11px"></i> Clave</button>
+        ${!u.isBase?`<button class="admin-btn danger" onclick="openDeleteUser('${k}','${u.full}')"><i class="ti ti-trash" style="font-size:11px"></i> Eliminar</button>`:''}
+      </div>
+    </div>`).join('');
+}
+
+// Reset password (admin)
+window.openResetPass = function(u) {
+  resetTargetUser=u;
+  $('resetUserName').textContent=userFull(u);
+  ['rp-new','rp-con'].forEach(id=>$(id).value='');
+  $('rpError').textContent='';$('rpSuccess').style.display='none';
+  $('resetPassOverlay').classList.add('open');
+};
+window.closeResetPass = ()=>{ $('resetPassOverlay').classList.remove('open');resetTargetUser=null; };
+window.doResetPass = function() {
+  const nw=$('rp-new').value,con=$('rp-con').value,err=$('rpError');
+  err.textContent='';
+  if(nw.length<4){err.textContent='Mínimo 4 caracteres.';return;}
+  if(nw!==con){err.textContent='Las contraseñas no coinciden.';return;}
+  setPass(resetTargetUser,nw);
+  $('rpSuccess').style.display='block';
+  setTimeout(()=>closeResetPass(),1600);
+};
+
+// Add user
+window.openAddUser = function() {
+  $('au-name').value='';$('au-pass').value='';
+  $('auError').textContent='';$('auSuccess').style.display='none';
+  auSelectedColor=USER_COLORS[0];
+  renderAuColors();
+  $('addUserOverlay').classList.add('open');
+};
+window.closeAddUser = ()=>$('addUserOverlay').classList.remove('open');
+window.selectAuColor = function(c){auSelectedColor=c;renderAuColors();};
+function renderAuColors(){
+  $('auColorGrid').innerHTML=USER_COLORS.map(c=>`<div class="color-opt${c===auSelectedColor?' sel':''}" style="background:${c}" onclick="selectAuColor('${c}')"></div>`).join('');
+}
+
+window.doAddUser = async function() {
+  const full=$('au-name').value.trim(),pass=$('au-pass').value,err=$('auError');
+  err.textContent='';
+  if(!full){err.textContent='El nombre es obligatorio.';return;}
+  if(pass.length<4){err.textContent='Clave mínimo 4 caracteres.';return;}
+  const key=full.replace(/\s+/g,'').replace(/[^a-zA-Z0-9]/g,'').substring(0,14);
+  const initials=full.split(' ').map(w=>w[0]?.toUpperCase()||'').join('').substring(0,2);
+  if(BASE_USERS[key]||dynUsers[key]){err.textContent='Ya existe un usuario con nombre similar.';return;}
+  await set(ref(db,'dynUsers/'+key),{full,initials,color:auSelectedColor,defaultPass:pass,isBase:false});
+  setPass(key,pass);
+  injectUserCSS(key,auSelectedColor);
+  $('auSuccess').style.display='block';
+  setTimeout(()=>closeAddUser(),1500);
+};
+
+// Delete user
+window.openDeleteUser = function(key,name){
+  deleteTargetKey=key;
+  $('deleteUserName').textContent=name;
+  $('deleteUserOverlay').classList.add('open');
+};
+window.closeDeleteUser = ()=>{ $('deleteUserOverlay').classList.remove('open');deleteTargetKey=null; };
+window.doDeleteUser = async function(){
+  if(!deleteTargetKey) return;
+  await remove(ref(db,'dynUsers/'+deleteTargetKey));
+  localStorage.removeItem('bso_pass_'+deleteTargetKey);
+  closeDeleteUser();
+};
+
+// ═══════════════════════════════════════════════════
+// CALENDAR
+// ═══════════════════════════════════════════════════
+window.setCalView = function(v,el){
+  calView=v;
+  document.querySelectorAll('.cvtab').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  renderCal();
+};
+window.calNav = function(dir){
+  calMonth+=dir;
+  if(calMonth>11){calMonth=0;calYear++;}
+  if(calMonth<0){calMonth=11;calYear--;}
+  renderCal();
+};
+window.selectCalDay = function(d){calSelDay=d;renderMiniGrid();renderCalRight();};
+window.renderCal = renderCal;
+
+function getCalTasks() {
+  const altaOn=$('cf-alta')?.checked, mediaOn=$('cf-media')?.checked, bajaOn=$('cf-baja')?.checked;
+  const pendOn=$('cf-pend')?.checked, doneOn=$('cf-done')?.checked;
+  return Object.entries(tasks).map(([k,v])=>({...v,key:k})).filter(t=>{
+    if(!t.due) return false;
+    if(!isVisibleToMe(t)) return false;
+    if(t.done&&!doneOn) return false;
+    if(!t.done&&!pendOn) return false;
+    if(t.urgency==='alta'&&!altaOn) return false;
+    if(t.urgency==='media'&&!mediaOn) return false;
+    if(t.urgency==='baja'&&!bajaOn) return false;
+    return true;
+  });
+}
+
+function renderCal(){
+  if(!currentUser||currentUser==='Admin') return;
+  const lbl=MONTHS[calMonth]+' '+calYear;
+  $('calMonthLbl').textContent=lbl;
+  $('miniCalLbl').textContent=lbl;
+  renderMiniGrid();
+  renderCalRight();
+}
+
+function renderMiniGrid(){
+  const today=new Date();
+  const firstDay=new Date(calYear,calMonth,1).getDay();
+  const offset=firstDay===0?6:firstDay-1;
+  const daysInMonth=new Date(calYear,calMonth+1,0).getDate();
+  const calTasks=getCalTasks();
+  const taskDays=new Set(calTasks.filter(t=>t.due?.startsWith(calYear+'-'+String(calMonth+1).padStart(2,'0'))).map(t=>parseInt(t.due.split('-')[2])));
+  let html=DAYS.map(d=>`<div class="mini-dow">${d}</div>`).join('');
+  for(let i=0;i<offset;i++) html+=`<div class="mini-day" style="color:transparent">0</div>`;
+  for(let d=1;d<=daysInMonth;d++){
+    const isToday=today.getFullYear()===calYear&&today.getMonth()===calMonth&&today.getDate()===d;
+    const isSel=calSelDay===d;
+    const hasTk=taskDays.has(d);
+    html+=`<div class="mini-day${isToday?' cal-today':''}${hasTk?' has-tk':''}${isSel&&!isToday?' sel-day':''}" onclick="selectCalDay(${d})">${d}</div>`;
+  }
+  $('miniGrid').innerHTML=html;
+}
+
+function renderCalRight(){
+  const right=$('calRight');
+  const t2=todayStr();
+  const calTasks=getCalTasks();
+  const monthPfx=calYear+'-'+String(calMonth+1).padStart(2,'0');
+  const monthTasks=calTasks.filter(t=>t.due?.startsWith(monthPfx));
+  const overdue=calTasks.filter(t=>t.due<t2&&!t.done).length;
+  const comp=monthTasks.filter(t=>t.done).length;
+  right.innerHTML=`<div class="cal-stats">
+    <div class="cal-stat"><div class="cal-stat-n" style="color:var(--alta)">${overdue}</div><div class="cal-stat-l">Vencidas</div></div>
+    <div class="cal-stat"><div class="cal-stat-n" style="color:var(--media)">${monthTasks.length}</div><div class="cal-stat-l">Este mes</div></div>
+    <div class="cal-stat"><div class="cal-stat-n" style="color:var(--baja)">${comp}</div><div class="cal-stat-l">Completadas</div></div>
+  </div>`;
+  let list = calView==='lista'?[...calTasks]:[...monthTasks];
+  if(calSelDay&&calView==='mensual'){
+    const dayStr=monthPfx+'-'+String(calSelDay).padStart(2,'0');
+    list=monthTasks.filter(t=>t.due===dayStr);
+  }
+  list.sort((a,b)=>{if(a.done!==b.done)return a.done?1:-1;return (a.due||'').localeCompare(b.due||'');});
+  if(!list.length){right.innerHTML+=`<div class="empty-state" style="padding:2rem"><i class="ti ti-calendar-off" style="font-size:30px;display:block;margin-bottom:7px"></i>${calSelDay?'Sin tareas este día':'Sin tareas en este periodo'}</div>`;return;}
+  const groups={};
+  list.forEach(t=>{const k=t.due||'sin-fecha';if(!groups[k])groups[k]=[];groups[k].push(t);});
+  let html='';
+  Object.entries(groups).sort(([a],[b])=>a.localeCompare(b)).forEach(([dk,tList])=>{
+    const isOvG=dk<t2,isTod=dk===t2;
+    const icon=isOvG?'ti-alert-triangle':isTod?'ti-calendar-event':'ti-calendar';
+    const col=isOvG?'var(--alta)':isTod?'var(--paula)':'var(--subtle)';
+    const lbl=isOvG?'Vencidas':isTod?'Hoy — '+formatDate(dk):formatDate(dk);
+    html+=`<div class="tg-label"><i class="ti ${icon}" style="font-size:12px;color:${col}"></i>${lbl}</div>`;
+    tList.forEach(t=>{
+      const di=dueDateInfo(t.due);
+      const urgC={alta:'var(--alta)',media:'var(--media)',baja:'var(--baja)'}[t.urgency];
+      const urgBg={alta:'var(--alta-bg)',media:'var(--media-bg)',baja:'var(--baja-bg)'}[t.urgency];
+      const isOv=!t.done&&t.due&&t.due<t2;
+      const assignees=t.assignee==='Todos'?Object.keys(getAllRegularUsers()):(Array.isArray(t.assignee)?t.assignee:[t.assignee]);
+      const chips=assignees.map(u=>`<div class="u-chip av-${u}" style="background:${userColor(u)}22;color:${userColor(u)}">${userInitials(u)}</div>`).join('');
+      html+=`<div class="cal-task-item${isOv?' ov':''}">
+        <div class="chk-circ${t.done?' done':''}">${t.done?'<i class="ti ti-check"></i>':''}</div>
+        <div class="urg-bar" style="background:${urgC}"></div>
+        <div class="cal-task-info">
+          <div class="cal-task-name">${t.title}</div>
+          <div class="cal-task-meta">
+            ${di.label?`<span class="cal-chip" style="background:${urgBg};color:${urgC}"><i class="ti ${di.icon}" style="font-size:9px"></i> ${di.label}</span>`:''}
+            <span class="cal-chip" style="background:${urgBg};color:${urgC}">${{alta:'Alta',media:'Media',baja:'Baja'}[t.urgency]}</span>
+          </div>
+        </div>
+        <div class="user-chips">${chips}</div>
+      </div>`;
+    });
+  });
+  right.innerHTML+=html;
+}
+
+// ═══════════════════════════════════════════════════
+// EXPOSE ALL FUNCTIONS TO WINDOW (required for ES6 modules)
+// ═══════════════════════════════════════════════════
+// Internal functions called from HTML need window exposure
+window.renderCal = renderCal;
+window.renderMiniGrid = renderMiniGrid;
+window.renderCalRight = renderCalRight;
+window.render = render;
+window.renderAdmin = renderAdmin;
+window.renderNotifs = renderNotifs;
+window.getCalTasks = getCalTasks;
+window.isVisibleToMe = isVisibleToMe;
+// Alias for checkbox onchange handlers
+window.calFilterChange = function() { renderCal(); };
+
+// ═══════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════
+// Inject CSS for all base users
+Object.entries(BASE_USERS).forEach(([k,u])=>injectUserCSS(k,u.color));
+injectUserCSS('Admin','#1E293B');
+
+const savedCfg = loadConfig();
+if(savedCfg?.apiKey&&savedCfg?.databaseURL){
+  initFirebase(savedCfg);
+} else {
+  hide('loadingScreen');
+  show('setupScreen');
+}
+</script>
+</body>
+</html>
