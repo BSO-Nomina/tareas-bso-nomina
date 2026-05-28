@@ -614,6 +614,9 @@ function userFull(key) {
   const u = BASE_USERS[key] || dynUsers[key];
   return u?.full || key;
 }
+function userExists(key) {
+  return key === 'Admin' || !!BASE_USERS[key] || !!dynUsers[key];
+}
 
 function dueDateInfo(due) {
   if (!due) return {label:'',cls:'',icon:''};
@@ -678,8 +681,10 @@ async function initFirebase(cfg) {
 
 function setupListeners() {
   onValue(ref(db,'tasks'), snap => {
-    tasks = snap.val() || {};
-    if (currentUser && !ADMIN.isAdmin) {
+    const newTasks = snap.val() || {};
+    // Merge carefully to avoid overwriting optimistic updates mid-flight
+    tasks = newTasks;
+    if (currentUser && currentUser !== 'Admin') {
       render();
       if ($('section-calendario')?.classList.contains('visible')) renderCal();
     }
@@ -698,6 +703,8 @@ function setupListeners() {
     Object.entries(dynUsers).forEach(([k,u]) => injectUserCSS(k, u.color));
     renderLoginCards();
     if (currentUser === 'Admin') renderAdmin();
+    // Re-render tasks so new users appear in assignee tags and checkboxes
+    else if (currentUser && currentUser !== 'Admin') render();
   });
 }
 
@@ -746,7 +753,17 @@ window.selectUser = function(u) {
 window.doLogin = function() {
   if (!selectedLoginUser) return;
   const pass = $('passInput').value;
-  const stored = getPass(selectedLoginUser);
+  // For dynUsers, check Firebase stored pass or defaultPass
+  let stored;
+  if (selectedLoginUser === 'Admin') {
+    stored = getPass('Admin');
+  } else if (BASE_USERS[selectedLoginUser]) {
+    stored = getPass(selectedLoginUser);
+  } else if (dynUsers[selectedLoginUser]) {
+    stored = localStorage.getItem('bso_pass_'+selectedLoginUser) || dynUsers[selectedLoginUser].defaultPass || dynUsers[selectedLoginUser].pass;
+  } else {
+    stored = getPass(selectedLoginUser);
+  }
   if (pass === stored) {
     currentUser = selectedLoginUser;
     $('passInput').value = '';
@@ -851,11 +868,14 @@ window.switchTab = function(tab) {
 // VISIBILITY LOGIC
 // ═══════════════════════════════════════════════════
 function isVisibleToMe(t) {
+  if (!t) return false;
   if (t.assignee === 'Todos') return true;
   if (t.assignee === currentUser) return true;
   if (Array.isArray(t.assignee) && t.assignee.includes(currentUser)) return true;
-  // Creator can see tasks they assigned to others (for follow-up)
+  // Creator sees tasks they assigned to others (follow-up)
   if (t.createdBy === currentUser) return true;
+  // Personal task — only visible to assignee (single string, not current user)
+  // If assignee is a single user that is not current user and createdBy is also not current user → hidden
   return false;
 }
 
@@ -969,11 +989,25 @@ window.toggleExpand = id => { expanded[id]=!expanded[id]; render(); };
 window.toggleDone = async function(id, e) {
   e.stopPropagation();
   const t = tasks[id];
-  const newDone = !t.done;
-  await update(ref(db,'tasks/'+id), {done:newDone});
-  if (newDone) {
-    const involved = getInvolved(t);
-    for (const u of involved) if (u!==currentUser) await pushNotif(u,`✅ "${t.title}" completada por ${userFull(currentUser)}`,id);
+  if (!t) return;
+  // Explicit boolean to avoid undefined issues
+  const currentDone = t.done === true;
+  const newDone = !currentDone;
+  // Update Firebase immediately
+  try {
+    await update(ref(db,'tasks/'+id), {done: newDone});
+    // Optimistically update local state so UI responds instantly
+    tasks[id].done = newDone;
+    render();
+    if (newDone) {
+      const involved = getInvolved(t);
+      for (const u of involved) if (u!==currentUser) await pushNotif(u,`✅ "${t.title}" completada por ${userFull(currentUser)}`,id);
+    }
+  } catch(err) {
+    console.error('Error updating task:', err);
+    // Revert local state if Firebase update failed
+    tasks[id].done = currentDone;
+    render();
   }
 };
 
@@ -1018,7 +1052,9 @@ window.openModal = function(id=null) {
   $('fUrg').value = t?.urgency||'media';
   $('fDue').value = t?.due||'';
   const allU = getAllRegularUsers();
-  $('assignChks').innerHTML = Object.entries(allU).map(([k,u])=>
+  // Rebuild checkboxes fresh each time to include any newly added dynUsers
+  const freshAllU = getAllRegularUsers();
+  $('assignChks').innerHTML = Object.entries(freshAllU).map(([k,u])=>
     `<label class="assign-opt"><input type="checkbox" value="${k}"> ${u.full}</label>`
   ).join('');
   $('chkTodos').checked = false;
@@ -1046,9 +1082,10 @@ window.toggleTodos = function(chk) {
 
 function getAssignees() {
   const checked = [...document.querySelectorAll('#assignChks input:checked')].map(c=>c.value);
+  if (!checked.length) return currentUser; // fallback to self if nothing checked
   const allU = getAllRegularUsers();
-  if ($('chkTodos').checked || checked.length===Object.keys(allU).length) return 'Todos';
-  return checked.length===1 ? checked[0] : checked;
+  if ($('chkTodos').checked || checked.length === Object.keys(allU).length) return 'Todos';
+  return checked.length === 1 ? checked[0] : checked;
 }
 
 window.saveTask = async function() {
@@ -1260,7 +1297,7 @@ window.doAddUser = async function() {
   const key=full.replace(/\s+/g,'').replace(/[^a-zA-Z0-9]/g,'').substring(0,14);
   const initials=full.split(' ').map(w=>w[0]?.toUpperCase()||'').join('').substring(0,2);
   if(BASE_USERS[key]||dynUsers[key]){err.textContent='Ya existe un usuario con nombre similar.';return;}
-  await set(ref(db,'dynUsers/'+key),{full,initials,color:auSelectedColor,defaultPass:pass,isBase:false});
+  await set(ref(db,'dynUsers/'+key),{full,initials,color:auSelectedColor,defaultPass:pass,pass,isBase:false});
   setPass(key,pass);
   injectUserCSS(key,auSelectedColor);
   $('auSuccess').style.display='block';
