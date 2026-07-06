@@ -531,6 +531,7 @@ code{background:#F3F0FF;color:var(--paula);padding:1px 5px;border-radius:4px;fon
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
 import { getDatabase, ref, onValue, set, push, remove, update } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js';
+import { getAuth, signInAnonymously, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 
 // ═══════════════════════════════════════════════════
 // CONSTANTS
@@ -559,6 +560,7 @@ const ADMIN = { full:'Administrador', initials:'AD', color:'#1E293B', defaultPas
 // STATE
 // ═══════════════════════════════════════════════════
 let db = null;
+let auth = null;
 let currentUser = null;
 let selectedLoginUser = null;
 let filterSel = 'todas';
@@ -673,10 +675,29 @@ async function initFirebase(cfg) {
   try {
     const app = initializeApp(cfg);
     db = getDatabase(app);
-    setupListeners();
-    hide('loadingScreen'); hide('setupScreen');
-    show('loginScreen');
-  } catch(e) { $('setupError').textContent = 'Error al conectar: '+e.message; }
+    auth = getAuth(app);
+    // Sign in anonymously so Firebase rules (auth != null) are satisfied
+    await signInAnonymously(auth);
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        // Authenticated — set up listeners and show login
+        setupListeners();
+        hide('loadingScreen'); hide('setupScreen');
+        show('loginScreen');
+      } else {
+        // Not authenticated — try again
+        signInAnonymously(auth).catch(e => {
+          $('setupError').textContent = 'Error de autenticación: ' + e.message;
+          hide('loadingScreen');
+          show('setupScreen');
+        });
+      }
+    });
+  } catch(e) { 
+    hide('loadingScreen');
+    show('setupScreen');
+    $('setupError').textContent = 'Error al conectar: '+e.message; 
+  }
 }
 
 function setupListeners() {
