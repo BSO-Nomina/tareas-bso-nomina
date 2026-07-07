@@ -445,6 +445,13 @@ code{background:#F3F0FF;color:var(--paula);padding:1px 5px;border-radius:4px;fon
       <div class="admin-hdr"><span><i class="ti ti-users" style="margin-right:6px"></i>Usuarios del sistema</span><button class="admin-btn primary" onclick="openAddUser()"><i class="ti ti-user-plus" style="font-size:11px"></i> Agregar</button></div>
       <div id="adminUserList"></div>
     </div>
+    <div class="admin-card">
+      <div class="admin-hdr" style="justify-content:space-between">
+        <span><i class="ti ti-shield-check" style="margin-right:6px"></i>Registro de auditoría (A.8.15)</span>
+        <button class="admin-btn danger" onclick="clearAuditLog()"><i class="ti ti-trash" style="font-size:11px"></i> Limpiar</button>
+      </div>
+      <div id="auditLogList" style="max-height:400px;overflow-y:auto"></div>
+    </div>
   </div>
 </div>
 
@@ -732,10 +739,52 @@ function setupListeners() {
     Object.entries(dynUsers).forEach(([k,u]) => injectUserCSS(k, u.color));
     renderLoginCards();
     if (currentUser === 'Admin') renderAdmin();
-    // Re-render tasks so new users appear in assignee tags and checkboxes
     else if (currentUser && currentUser !== 'Admin') render();
   });
+  // A.8.15 — Live audit log for admin
+  onValue(ref(db,'auditLog'), snap => {
+    if (currentUser === 'Admin') renderAuditLog(snap.val() || {});
+  });
 }
+
+function renderAuditLog(log) {
+  const el = $('auditLogList');
+  if (!el) return;
+  const entries = Object.values(log).sort((a,b) => b.timestamp - a.timestamp).slice(0,100);
+  if (!entries.length) { el.innerHTML='<div style="padding:1rem;text-align:center;color:var(--subtle);font-size:13px">Sin registros</div>'; return; }
+  const actionColors = {
+    LOGIN:'#16A34A', LOGOUT:'#78716C', SESSION_TIMEOUT:'#D97706',
+    TASK_CREATE:'#0891B2', TASK_EDIT:'#7C3AED', TASK_DELETE:'#DC2626',
+    PASSWORD_CHANGE:'#B45309', PASSWORD_RESET:'#BE185D',
+    USER_CREATE:'#0369A1', USER_DELETE:'#DC2626', LOCKOUT:'#DC2626'
+  };
+  const actionLabels = {
+    LOGIN:'Inicio de sesión', LOGOUT:'Cierre de sesión', SESSION_TIMEOUT:'Timeout de sesión',
+    TASK_CREATE:'Tarea creada', TASK_EDIT:'Tarea editada', TASK_DELETE:'Tarea eliminada',
+    PASSWORD_CHANGE:'Cambio de contraseña', PASSWORD_RESET:'Restablecimiento de contraseña',
+    USER_CREATE:'Usuario creado', USER_DELETE:'Usuario eliminado', LOCKOUT:'⚠️ Bloqueo de cuenta'
+  };
+  el.innerHTML = entries.map(e => `
+    <div style="display:flex;align-items:flex-start;gap:10px;padding:9px 15px;border-bottom:0.5px solid var(--border)">
+      <div style="width:8px;height:8px;border-radius:50%;background:${actionColors[e.action]||'#A8A29E'};flex-shrink:0;margin-top:4px"></div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:12px;font-weight:600;color:${actionColors[e.action]||'var(--text)'}">${actionLabels[e.action]||e.action}</div>
+        <div style="font-size:12px;color:var(--text);margin:1px 0">${e.details}</div>
+        <div style="font-size:10px;color:var(--subtle)">${userFull(e.user)} · ${e.time}</div>
+      </div>
+    </div>`).join('');
+}
+
+window.clearAuditLog = async function() {
+  if (!confirm('¿Confirmas limpiar el registro de auditoría? Esta acción no se puede deshacer.')) return;
+  await set(ref(db,'auditLog'), null);
+  await push(ref(db,'auditLog'), {
+    action:'AUDIT_CLEAR', user:'Admin',
+    details:'Registro de auditoría limpiado por el administrador',
+    timestamp:Date.now(), time:new Date().toLocaleString('es-CL'),
+    browser:navigator.userAgent.substring(0,80)
+  });
+};
 
 async function seedCategories() {
   const defaults = [{name:'Clientes',color:'#0891B2'},{name:'Interno',color:'#7C3AED'},{name:'Seguimiento',color:'#D97706'},{name:'Admin',color:'#16A34A'}];
@@ -779,10 +828,65 @@ window.selectUser = function(u) {
   $('loginError').textContent = '';
 };
 
+// A.8.5 — Login attempt tracking
+const MAX_ATTEMPTS = 5;
+const LOCKOUT_MINUTES = 15;
+
+function getLockoutKey(u) { return 'bso_lockout_'+u; }
+function getAttemptsKey(u) { return 'bso_attempts_'+u; }
+
+function isLockedOut(u) {
+  try {
+    const data = JSON.parse(localStorage.getItem(getLockoutKey(u)));
+    if (!data) return false;
+    const remaining = data.until - Date.now();
+    if (remaining > 0) return { locked: true, minutes: Math.ceil(remaining/60000) };
+    localStorage.removeItem(getLockoutKey(u));
+    localStorage.removeItem(getAttemptsKey(u));
+    return false;
+  } catch(e) { return false; }
+}
+
+function registerFailedAttempt(u) {
+  const key = getAttemptsKey(u);
+  const attempts = parseInt(localStorage.getItem(key)||'0') + 1;
+  localStorage.setItem(key, attempts);
+  if (attempts >= MAX_ATTEMPTS) {
+    localStorage.setItem(getLockoutKey(u), JSON.stringify({
+      until: Date.now() + LOCKOUT_MINUTES * 60000,
+      attempts
+    }));
+    // A.8.16 — Push security alert to admin
+    if (db) push(ref(db,'auditLog'), {
+      action: 'LOCKOUT',
+      user: u,
+      details: `Usuario bloqueado por ${attempts} intentos fallidos`,
+      timestamp: Date.now(),
+      time: new Date().toLocaleString('es-CL'),
+      browser: navigator.userAgent.substring(0,80)
+    });
+  }
+  return attempts;
+}
+
+function clearAttempts(u) {
+  localStorage.removeItem(getAttemptsKey(u));
+  localStorage.removeItem(getLockoutKey(u));
+}
+
 window.doLogin = function() {
   if (!selectedLoginUser) return;
   const pass = $('passInput').value;
-  // For dynUsers, check Firebase stored pass or defaultPass
+
+  // A.8.5 — Check lockout
+  const lockout = isLockedOut(selectedLoginUser);
+  if (lockout && lockout.locked) {
+    $('loginError').textContent = `Usuario bloqueado. Intenta en ${lockout.minutes} minuto(s).`;
+    $('passInput').value = '';
+    return;
+  }
+
+  // Resolve stored password
   let stored;
   if (selectedLoginUser === 'Admin') {
     stored = getPass('Admin');
@@ -793,10 +897,22 @@ window.doLogin = function() {
   } else {
     stored = getPass(selectedLoginUser);
   }
+
   if (pass === stored) {
+    clearAttempts(selectedLoginUser);
     currentUser = selectedLoginUser;
     $('passInput').value = '';
     $('loginError').textContent = '';
+
+    // A.8.15 — Audit log: successful login
+    if (db) push(ref(db,'auditLog'), {
+      action: 'LOGIN',
+      user: currentUser,
+      details: 'Inicio de sesión exitoso',
+      timestamp: Date.now(),
+      time: new Date().toLocaleString('es-CL'),
+      browser: navigator.userAgent.substring(0,80)
+    });
 
     // Reset state for fresh session
     expanded = {}; filterSel = 'todas'; catFilter = 'todas';
@@ -815,6 +931,10 @@ window.doLogin = function() {
     hide('loginScreen');
     show('appScreen');
     setupAppUI();
+
+    // A.5.14 — Start inactivity timer (30 min)
+    resetInactivityTimer();
+
     if (currentUser === 'Admin') {
       switchTab('admin');
     } else {
@@ -823,28 +943,73 @@ window.doLogin = function() {
       if ('Notification' in window && Notification.permission === 'default') Notification.requestPermission();
     }
   } else {
-    $('loginError').textContent = 'Contraseña incorrecta. Intenta de nuevo.';
+    const attempts = registerFailedAttempt(selectedLoginUser);
+    const remaining = MAX_ATTEMPTS - attempts;
+    if (remaining > 0) {
+      $('loginError').textContent = `Contraseña incorrecta. ${remaining} intento(s) restante(s).`;
+    } else {
+      $('loginError').textContent = `Usuario bloqueado por ${LOCKOUT_MINUTES} minutos por seguridad.`;
+    }
     $('passInput').value = '';
     $('passInput').focus();
   }
 };
 
-window.doLogout = function() {
+// A.5.14 — Inactivity timeout
+let inactivityTimer = null;
+const INACTIVITY_MINUTES = 30;
+
+function resetInactivityTimer() {
+  clearTimeout(inactivityTimer);
+  inactivityTimer = setTimeout(() => {
+    if (currentUser) {
+      if (db) push(ref(db,'auditLog'), {
+        action: 'SESSION_TIMEOUT',
+        user: currentUser,
+        details: `Sesión cerrada automáticamente por inactividad (${INACTIVITY_MINUTES} min)`,
+        timestamp: Date.now(),
+        time: new Date().toLocaleString('es-CL'),
+        browser: navigator.userAgent.substring(0,80)
+      });
+      doLogout(true);
+    }
+  }, INACTIVITY_MINUTES * 60 * 1000);
+}
+
+// Reset timer on user interaction
+['click','keydown','mousemove','touchstart'].forEach(evt => {
+  document.addEventListener(evt, () => { if (currentUser) resetInactivityTimer(); }, {passive:true});
+});
+
+window.doLogout = function(isTimeout=false) {
+  // A.8.15 — Audit log: logout
+  if (db && currentUser) push(ref(db,'auditLog'), {
+    action: isTimeout ? 'SESSION_TIMEOUT' : 'LOGOUT',
+    user: currentUser,
+    details: isTimeout ? 'Sesión cerrada por inactividad' : 'Cierre de sesión manual',
+    timestamp: Date.now(),
+    time: new Date().toLocaleString('es-CL'),
+    browser: navigator.userAgent.substring(0,80)
+  });
+
+  clearTimeout(inactivityTimer);
+
   // Reset ALL state
   currentUser = null; selectedLoginUser = null;
   expanded = {}; filterSel = 'todas'; catFilter = 'todas';
   calSelDay = null; calYear = new Date().getFullYear(); calMonth = new Date().getMonth();
   editId = null;
 
-  // Clear rendered content so previous user's tasks don't show
-  const clearIds = ['statsBar','taskList','catRow','calRight','miniGrid','notifList','adminUserList'];
-  clearIds.forEach(id => { const el=$(id); if(el) el.innerHTML=''; });
+  // Clear rendered content
+  ['statsBar','taskList','catRow','calRight','miniGrid','notifList','adminUserList','auditLogList'].forEach(id => {
+    const el=$(id); if(el) el.innerHTML='';
+  });
 
   // Reset filter chips
   document.querySelectorAll('.filter-chip').forEach(b => b.classList.remove('active'));
   const fc = $('fc-todas'); if(fc) fc.classList.add('active');
 
-  // Reset tab to tareas
+  // Reset tabs
   ['tareas','calendario','admin'].forEach(t => {
     $('section-'+t)?.classList.toggle('visible', t==='tareas');
     $('tab-'+t)?.classList.toggle('active', t==='tareas');
@@ -859,6 +1024,11 @@ window.doLogout = function() {
   $('loginBtn').style.background = 'var(--paula)';
   $('passInput').value = '';
   $('loginError').textContent = '';
+
+  if (isTimeout) {
+    $('loginError').textContent = 'Sesión cerrada por inactividad. Ingresa de nuevo.';
+    $('loginError').style.color = 'var(--media)';
+  }
 };
 
 function setupAppUI() {
@@ -1043,7 +1213,14 @@ window.toggleDone = async function(id, e) {
 window.deleteTask = async function(id, e) {
   e.stopPropagation();
   if (tasks[id]?.createdBy !== currentUser) return;
+  const title = tasks[id]?.title || id;
   await remove(ref(db,'tasks/'+id));
+  await push(ref(db,'auditLog'), {
+    action:'TASK_DELETE', user:currentUser,
+    details:`Tarea eliminada: "${title}"`,
+    timestamp:Date.now(), time:new Date().toLocaleString('es-CL'),
+    browser:navigator.userAgent.substring(0,80)
+  });
 };
 
 window.editTask = function(id, e) { e.stopPropagation(); openModal(id); };
@@ -1129,9 +1306,21 @@ window.saveTask = async function() {
   };
   if (editId) {
     await update(ref(db,'tasks/'+editId), data);
+    await push(ref(db,'auditLog'), {
+      action:'TASK_EDIT', user:currentUser,
+      details:`Tarea editada: "${title}"`,
+      timestamp:Date.now(), time:new Date().toLocaleString('es-CL'),
+      browser:navigator.userAgent.substring(0,80)
+    });
   } else {
     data.done=false; data.createdBy=currentUser; data.createdAt=Date.now(); data.replies={};
     const snap = await push(ref(db,'tasks'), data);
+    await push(ref(db,'auditLog'), {
+      action:'TASK_CREATE', user:currentUser,
+      details:`Tarea creada: "${title}"`,
+      timestamp:Date.now(), time:new Date().toLocaleString('es-CL'),
+      browser:navigator.userAgent.substring(0,80)
+    });
     const allU = getAllRegularUsers();
     const toNotif = assignee==='Todos'?Object.keys(allU):(Array.isArray(assignee)?assignee:[assignee]);
     for (const u of toNotif) if (u!==currentUser) await pushNotif(u,`📋 Nueva tarea: "${title}"`,snap.key);
@@ -1289,6 +1478,12 @@ window.doChangePass = function() {
   if(nw!==con){err.textContent='Las contraseñas nuevas no coinciden.';$('cp-con').value='';return;}
   if(nw===cur){err.textContent='La nueva debe ser diferente a la actual.';return;}
   setPass(currentUser,nw);
+  if (db) push(ref(db,'auditLog'), {
+    action:'PASSWORD_CHANGE', user:currentUser,
+    details:'Contraseña cambiada por el usuario',
+    timestamp:Date.now(), time:new Date().toLocaleString('es-CL'),
+    browser:navigator.userAgent.substring(0,80)
+  });
   $('cpSuccess').style.display='block';
   ['cp-cur','cp-new','cp-con'].forEach(id=>$(id).value='');
   $('strengthFill').style.width='0';$('strengthLbl').textContent='';
@@ -1306,6 +1501,8 @@ window.togglePass = function(inputId,iconId) {
 // ═══════════════════════════════════════════════════
 function renderAdmin() {
   if(currentUser!=='Admin') return;
+  // Fetch audit log
+  onValue(ref(db,'auditLog'), snap => renderAuditLog(snap.val()||{}), {onlyOnce:true});
   const allU = getAllRegularUsers();
   $('adminUserList').innerHTML = Object.entries(allU).map(([k,u])=>`
     <div class="admin-user-row">
@@ -1338,6 +1535,12 @@ window.doResetPass = function() {
   if(!valid){err.textContent='No cumple la política: '+failed.map(r=>r.msg).join(', ')+'.';return;}
   if(nw!==con){err.textContent='Las contraseñas no coinciden.';return;}
   setPass(resetTargetUser,nw);
+  if (db) push(ref(db,'auditLog'), {
+    action:'PASSWORD_RESET', user:'Admin',
+    details:`Contraseña restablecida para: ${userFull(resetTargetUser)}`,
+    timestamp:Date.now(), time:new Date().toLocaleString('es-CL'),
+    browser:navigator.userAgent.substring(0,80)
+  });
   $('rpSuccess').style.display='block';
   setTimeout(()=>closeResetPass(),1600);
 };
@@ -1369,6 +1572,12 @@ window.doAddUser = async function() {
   await set(ref(db,'dynUsers/'+key),{full,initials,color:auSelectedColor,defaultPass:pass,pass,isBase:false});
   setPass(key,pass);
   injectUserCSS(key,auSelectedColor);
+  await push(ref(db,'auditLog'), {
+    action:'USER_CREATE', user:'Admin',
+    details:`Usuario creado: ${full}`,
+    timestamp:Date.now(), time:new Date().toLocaleString('es-CL'),
+    browser:navigator.userAgent.substring(0,80)
+  });
   $('auSuccess').style.display='block';
   setTimeout(()=>closeAddUser(),1500);
 };
@@ -1382,8 +1591,15 @@ window.openDeleteUser = function(key,name){
 window.closeDeleteUser = ()=>{ $('deleteUserOverlay').classList.remove('open');deleteTargetKey=null; };
 window.doDeleteUser = async function(){
   if(!deleteTargetKey) return;
+  const deletedName = userFull(deleteTargetKey);
   await remove(ref(db,'dynUsers/'+deleteTargetKey));
   localStorage.removeItem('bso_pass_'+deleteTargetKey);
+  await push(ref(db,'auditLog'), {
+    action:'USER_DELETE', user:'Admin',
+    details:`Usuario eliminado: ${deletedName}`,
+    timestamp:Date.now(), time:new Date().toLocaleString('es-CL'),
+    browser:navigator.userAgent.substring(0,80)
+  });
   closeDeleteUser();
 };
 
